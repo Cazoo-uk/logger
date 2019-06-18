@@ -1,0 +1,22 @@
+{
+  "name": "cazoo-logger",
+  "version": "1.0.0",
+  "description": "Codified standards for structured logging",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard | snazzy && cross-env NODE_OPTIONS=\"--no-warnings -r qodaa\" tap -j 4 --no-cov test/*test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^12.0.8",
+    "cross-env": "^5.2.0",
+    "flush-write-stream": "^2.0.0",
+    "qodaa": "^1.0.1",
+    "snazzy": "^8.0.0",
+    "split2": "^3.1.1",
+    "standard": "^12.0.1",
+    "tap": "^14.2.3",
+    "typescript": "^3.5.2"
+  }
+}
