@@ -1,9 +1,8 @@
 const { test } = require('tap')
-const writer = require('flush-write-stream')
 const split = require('split2')
 const logger = require('../lib')
 
-function sink (func) {
+function sink () {
   const result = split((data) => {
     try {
       return JSON.parse(data)
@@ -12,7 +11,6 @@ function sink (func) {
       console.log(data)
     }
   })
-  if (func) result.pipe(writer.obj(func))
   return result
 }
 
@@ -50,21 +48,27 @@ test('When logging in a cloudwatch event context', async ({ same }) => {
 
   const stream = sink()
 
-  const log = logger.domainEvent(event, context, sink)
+  const log = logger.domainEvent({ event, context, stream })
   log.info('Hello world')
 
   const result = await once(stream, 'data')
 
   same(result, {
     level: 'info',
+    v: 1,
     context: {
       request_id: context.awsRequestId,
       function: {
         name: context.functionName,
         version: context.functionVersion,
         service: context.logStreamName
+      },
+      event: {
+        source: 'aws.events',
+          type: 'Scheduled Event',
+          id: event.id
       }
     },
-    message: 'Hello world'
+    msg: 'Hello world'
   })
 })

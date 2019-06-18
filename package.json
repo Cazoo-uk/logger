@@ -4,12 +4,15 @@
   "description": "Codified standards for structured logging",
   "main": "index.js",
   "scripts": {
-    "test": "standard | snazzy && cross-env NODE_OPTIONS=\"--no-warnings -r qodaa\" tap -j 4 --no-cov test/*test.js"
+    "test": "standard | snazzy && cross-env NODE_OPTIONS=\"--no-warnings -r qodaa\" tap -j 4 --no-cov test/*test.ts",
+    "fix": "standard --parser @typescript-eslint/parser --plugin typescript **/*.ts --fix | snazzy"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^12.0.8",
+    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
     "cross-env": "^5.2.0",
     "flush-write-stream": "^2.0.0",
     "qodaa": "^1.0.1",
@@ -18,5 +21,9 @@
     "standard": "^12.0.1",
     "tap": "^14.2.3",
     "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "eslint-plugin-typescript": "^0.14.0",
+    "pino": "^5.12.6"
   }
 }
