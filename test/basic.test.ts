@@ -24,28 +24,28 @@ function once (emitter, name) {
   })
 }
 
+const event = {
+  'account': '123456789012',
+  'region': 'us-east-2',
+  'detail': {},
+  'detail-type': 'Scheduled Event',
+  'source': 'aws.events',
+  'time': '2019-03-01T01:23:45Z',
+  'id': 'cdc73f9d-aea9-11e3-9d5a-835b769c0d9c',
+  'resources': [
+    'arn:aws:events:us-east-1:123456789012:rule/my-schedule'
+  ]
+}
+
+const context = {
+  functionName: 'my-function',
+  functionVersion: 'v1.0.1',
+  awsRequestId: 'request-id',
+  logGroupName: 'log-group',
+  logStreamName: 'log-stream'
+}
+
 test('When logging in a cloudwatch event context', async ({ same }) => {
-  const event = {
-    'account': '123456789012',
-    'region': 'us-east-2',
-    'detail': {},
-    'detail-type': 'Scheduled Event',
-    'source': 'aws.events',
-    'time': '2019-03-01T01:23:45Z',
-    'id': 'cdc73f9d-aea9-11e3-9d5a-835b769c0d9c',
-    'resources': [
-      'arn:aws:events:us-east-1:123456789012:rule/my-schedule'
-    ]
-  }
-
-  const context = {
-    functionName: 'my-function',
-    functionVersion: 'v1.0.1',
-    awsRequestId: 'request-id',
-    logGroupName: 'log-group',
-    logStreamName: 'log-stream'
-  }
-
   const stream = sink()
 
   const log = logger.domainEvent({ event, context, stream })
@@ -65,10 +65,39 @@ test('When logging in a cloudwatch event context', async ({ same }) => {
       },
       event: {
         source: 'aws.events',
-          type: 'Scheduled Event',
-          id: event.id
+        type: 'Scheduled Event',
+        id: event.id
       }
     },
     msg: 'Hello world'
+  })
+})
+
+test('When logging with no message', async ({ is }) => {
+  const stream = sink()
+
+  const log = logger.domainEvent({ event, context, stream })
+  log.info({ type: 'random-thing' })
+
+  const result: any = await once(stream, 'data')
+
+  is(result.type, 'random-thing')
+  is(result.msg, undefined)
+})
+
+test('When logging with data', async ({ is, same }) => {
+  const stream = sink()
+
+  const log = logger.domainEvent({ event, context, stream })
+  log.withData({event: {'hello': 'world'}}).debug({type: 'event-published'})
+
+  const result: any = await once(stream, 'data')
+
+  is(result.level, 'debug')
+  is(result.type, 'event-published')
+  same(result.data, {
+    event: {
+        hello: 'world'
+    }
   })
 })
