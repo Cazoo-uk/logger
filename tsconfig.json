@@ -2,6 +2,18 @@
   "compilerOptions": {
     "lib": ["es2017"],
     "module": "commonjs",
-    "target": "es2017"
-  }
+    "target": "es2017",
+    "declaration": true,
+    "outDir": "dist",
+      "esModuleInterop": true,
+      "baseUrl": "./",
+      "paths": {
+          "*": ["local-types/*", "node_modules/@types/*"]
+      }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test"
+  ]
 }

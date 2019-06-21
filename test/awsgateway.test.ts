@@ -1,6 +1,6 @@
 const { test } = require('tap')
 const logger = require('../lib')
-const { sink, once } = require('./helper')
+const { sink } = require('./helper')
 
 const context = {
   functionName: 'my-function',
@@ -145,10 +145,10 @@ const event = {
 test('When logging in an API Gateway event context', async ({ same }) => {
   const stream = sink()
 
-  const log = logger.forAPIGatewayEvent(event, context, stream)
+  const log = logger.forAPIGatewayEvent(event, context, { stream })
   log.info('Hello world')
 
-  const result = await once(stream, 'data')
+  const result = stream.read()
 
   same(result, {
     level: 'info',

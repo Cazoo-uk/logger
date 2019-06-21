@@ -1,14 +1,18 @@
-import * as Pino from 'pino'
-import { Context, APIGatewayProxyEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
-import * as uuid from 'uuid/v4'
+import Pino from 'pino'
+import uuid from 'uuid/v4'
+import { Context, APIGatewayProxyEvent, ScheduledEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
 
-function withData (data) {
+function withData (this: Pino.Logger, data: object) {
   return this.child({ data })
 }
 
-function withHttpResponse ({ status, error, body, elapsedMs }) {
-  const bindings = this.bindings()
-  const req = (bindings.data && bindings.data.http && bindings.data.http.req)
+function withHttpResponse (
+  this: Pino.Logger,
+  { status, error, body, elapsedMs }:
+                           { status: number, error: Error, body: any, elapsedMs: number }) {
+  const bindings: any = (this as any).bindings()
+  const req = bindings && bindings.data && bindings.data.http && bindings.data.http.req
+
   return makeLogger({
     data: {
       http: {
@@ -25,7 +29,8 @@ function withHttpResponse ({ status, error, body, elapsedMs }) {
   }, this)
 }
 
-function withHttpRequest ({ url, method, body }) {
+function withHttpRequest (this: Pino.Logger,
+  { url, method, body }: { url: string, method: string, body: any }) {
   const requestId = uuid()
   return makeLogger({
     data: {
@@ -41,15 +46,36 @@ function withHttpRequest ({ url, method, body }) {
   }, this)
 }
 
-function makeLogger (data: object, parent?: Pino.Logger, stream?) {
+export interface LoggerOptions {
+    stream?: Pino.DestinationStream,
+    level?: string
+    service?: string
+}
+
+function parentLogger (data: object, options?: LoggerOptions) {
+  const level = options && (options.level || 'info')
+  if (options && options.stream) {
+    return Pino({
+      timestamp: false,
+      base: data,
+      useLevelLabels: true,
+      level
+    }, options.stream)
+  }
+
+  return Pino({
+    timestamp: false,
+    base: data,
+    useLevelLabels: true,
+    level
+  })
+}
+
+function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions) {
   let instance: Pino.Logger
 
   if (parent === undefined) {
-    instance = Pino({
-      timestamp: false,
-      base: data,
-      useLevelLabels: true
-    }, stream)
+    instance = parentLogger(data, options)
   } else {
     instance = parent.child(data)
   }
@@ -62,13 +88,13 @@ function makeLogger (data: object, parent?: Pino.Logger, stream?) {
   return instance
 }
 
-export function forDomainEvent (event, context:Context, params) {
+export function forDomainEvent (event: ScheduledEvent, context:Context, options: LoggerOptions) {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
     function: {
       name: context.functionName,
       version: context.functionVersion,
-      service: params.service || context.logStreamName
+      service: options.service || context.logStreamName
     },
     event: {
       source: event.source,
@@ -76,10 +102,10 @@ export function forDomainEvent (event, context:Context, params) {
       id: event.id
     }
   }
-  }, undefined, params.stream)
+  }, undefined, options)
 }
 
-export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, stream?) {
+export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options: LoggerOptions) {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
     account_id: event.requestContext.accountId,
@@ -94,5 +120,5 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
       method: event.httpMethod
     }
   }
-  }, undefined, stream)
+  }, undefined, options)
 }
