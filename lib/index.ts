@@ -88,7 +88,7 @@ function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions
   return instance
 }
 
-export function forDomainEvent (event: ScheduledEvent, context:Context, options: LoggerOptions) {
+export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
     function: {
@@ -105,7 +105,7 @@ export function forDomainEvent (event: ScheduledEvent, context:Context, options:
   }, undefined, options)
 }
 
-export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options: LoggerOptions) {
+export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
     account_id: event.requestContext.accountId,
