@@ -1,33 +1,36 @@
 import * as Pino from 'pino'
+import { Context, APIGatewayProxyEvent } from 'aws-lambda'
 
 interface LogFn {
     (msg: string, ...args: any[]): void;
     (obj: object, msg?: string, ...args: any[]): void;
 }
 
+function withData (data) {
+    return this.child({data});
+}
 
-class Logger {
-    instance: Pino.Logger
+function makeLogger (data: object, parent?: Pino.Logger, stream?) {
+    let instance: Pino.Logger;
 
-    constructor (context, stream?) {
-      this.instance = Pino({
-        timestamp: false,
-        base: { context },
-        useLevelLabels: true
-      }, stream)
+    if (parent === undefined) {
+        instance = Pino({
+            timestamp: false,
+            base: data,
+            useLevelLabels: true
+        }, stream)
+    } else {
+        instance = parent.child(data)
     }
+    Object.assign(instance, {
+        withData
+    })
 
-    info(msg: string, ...args: any[]): void;
-    info(obj: object, msg?: string, ...args: any[]): void;
-    info(msgOrString, ...args) {
-        
-    }
-
-    }
+    return instance
 }
 
 export function domainEvent (params) {
-  return new Logger({
+    return makeLogger({ context: {
     request_id: params.context.awsRequestId,
     function: {
       name: params.context.functionName,
@@ -39,6 +42,24 @@ export function domainEvent (params) {
       type: params.event['detail-type'],
       id: params.event.id
     }
+     }
+    }, undefined, params.stream)
+}
 
-  }, params.stream)
+export function apiGatewayEvent (event: APIGatewayProxyEvent, context: Context, stream?) {
+    return makeLogger({ context: {
+        request_id: context.awsRequestId,
+        account_id: event.requestContext.accountId,
+        function: {
+            name: context.functionName,
+            version: context.functionVersion,
+            service: context.logStreamName,
+            stage: event.requestContext.stage
+        },
+        http: {
+            path: event.path,
+            method: event.httpMethod
+        }
+    }
+    }, undefined, stream)
 }
