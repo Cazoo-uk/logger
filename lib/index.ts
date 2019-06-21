@@ -1,13 +1,44 @@
 import * as Pino from 'pino'
 import { Context, APIGatewayProxyEvent } from 'aws-lambda'
-
-interface LogFn {
-    (msg: string, ...args: any[]): void;
-    (obj: object, msg?: string, ...args: any[]): void;
-}
+import * as uuid from 'uuid/v4'
 
 function withData (data) {
     return this.child({data});
+}
+
+function completeHttpRequest ({status, error, body, elapsed_ms}) {
+    const bindings = this.bindings()
+    const req = (bindings.data && bindings.data.http && bindings.data.http.req)
+    return makeLogger({
+        data: {
+            http: {
+                req: {
+                    id: req && req.id
+                },
+                resp: {
+                  status,
+                  body,
+                  elapsed_ms
+               }
+            }
+        }
+    }, this)
+}
+
+function startHttpRequest ({url, method, body}) {
+    const requestId = uuid()
+    return makeLogger ({
+        data: {
+        http: {
+            req: {
+              id: requestId,
+              url,
+              method,
+              body
+           }
+        }
+      }
+    }, this)
 }
 
 function makeLogger (data: object, parent?: Pino.Logger, stream?) {
@@ -23,24 +54,26 @@ function makeLogger (data: object, parent?: Pino.Logger, stream?) {
         instance = parent.child(data)
     }
     Object.assign(instance, {
-        withData
+        withData,
+        startHttpRequest,
+        completeHttpRequest
     })
 
     return instance
 }
 
-export function domainEvent (params) {
+export function domainEvent (event, context:Context, params) {
     return makeLogger({ context: {
-    request_id: params.context.awsRequestId,
+    request_id: context.awsRequestId,
     function: {
-      name: params.context.functionName,
-      version: params.context.functionVersion,
-      service: params.service || params.context.logStreamName
+      name: context.functionName,
+      version: context.functionVersion,
+      service: params.service || context.logStreamName
     },
     event: {
-      source: params.event.source,
-      type: params.event['detail-type'],
-      id: params.event.id
+      source: event.source,
+      type: event['detail-type'],
+      id: event.id
     }
      }
     }, undefined, params.stream)

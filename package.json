@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.27",
     "@types/node": "^12.0.8",
     "@types/pino": "^5.8.8",
     "@typescript-eslint/eslint-plugin": "^1.10.2",
@@ -27,9 +28,10 @@
   },
   "dependencies": {
     "eslint-plugin-typescript": "^0.14.0",
-    "pino": "^5.12.6"
+    "pino": "^5.12.6",
+    "uuid": "^3.3.2"
   },
-    "publishConfig": {
-        "@cazoo:registry": "https://gitlab.com/api/v4/projects/12953833/packages/npm/"
-    }
+  "publishConfig": {
+    "@cazoo:registry": "https://gitlab.com/api/v4/projects/12953833/packages/npm/"
+  }
 }

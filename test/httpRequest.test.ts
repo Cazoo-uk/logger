@@ -25,32 +25,35 @@ const context = {
 
 test('When recording an outbound HTTP request', async ({ match, is }) =>{
 
+    const stream = sink()
+
     let log = logger.domainEvent(event, context, {stream, level: 'debug' })
     log = log.startHttpRequest({
         url: 'http://google.com',
         method: 'get'
-    })
-    log.completeHttpRequest({status: 200})
+    });
+    log.info({type: 'outbound-http'})
+    const request = stream.read()
 
-    const request = await once(stream, 'data')
-    const response = await once(stream, 'data')
+    log.completeHttpRequest({status: 200}).info("Got stuff")
+    const response = stream.read()
 
     match(request.data, {
-        level: 'debug',
-        v: 1,
-        context: {
-            request_id: context.awsRequestId,
-            function: {
-                name: context.functionName,
-                version: context.functionVersion,
-                service: context.logStreamName
-            },
-            event: {
-                source: 'aws.events',
-                type: 'Scheduled Event',
-                id: event.id
+        http: {
+            req: {
+            url: 'http://google.com',
+            method: 'get'
             }
-        },
-        msg: 'Hello world'
+        }
+    });
+
+    match(response.data, {
+        http: {
+            resp: {
+            status: 200
+            }
+        }
     })
+
+    is(request.data.http.req.id, response.data.http.req.id)
 })
