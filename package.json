@@ -1,6 +1,6 @@
 {
   "name": "cazoo-logger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Codified standards for structured logging",
   "main": "index.js",
   "scripts": {
@@ -24,10 +24,10 @@
     "split2": "^3.1.1",
     "standard": "^12.0.1",
     "tap": "^14.2.3",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.2",
+    "eslint-plugin-typescript": "^0.14.0"
   },
   "dependencies": {
-    "eslint-plugin-typescript": "^0.14.0",
     "pino": "^5.12.6",
     "uuid": "^3.3.2"
   },
