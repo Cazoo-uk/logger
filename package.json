@@ -38,6 +38,7 @@
     "@cazoo:registry": "https://gitlab.com/api/v4/projects/12953833/packages/npm/"
   },
   "files": [
-    "lib/index.ts"
+    "dist/index.js",
+    "dist/index.d.ts"
   ]
 }
