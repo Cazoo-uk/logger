@@ -18,7 +18,7 @@ export interface Contexts {
 }
 
 function withData (this: Pino.Logger, data: object) {
-  return this.child({ data })
+  return makeLogger(data, this)
 }
 
 function withHttpResponse (
@@ -86,7 +86,7 @@ function parentLogger (data: object, options?: LoggerOptions) {
   })
 }
 
-function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions) {
+function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions) : Logger {
   let instance: Pino.Logger
 
   if (parent === undefined) {
@@ -100,10 +100,10 @@ function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions
     withHttpResponse
   })
 
-  return instance
+  return instance as Logger
 }
 
-export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) {
+export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
     function: {
@@ -120,7 +120,7 @@ export function forDomainEvent (event: ScheduledEvent, context:Context, options?
   }, undefined, options)
 }
 
-export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) {
+export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
     account_id: event.requestContext.accountId,
@@ -138,8 +138,8 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
   }, undefined, options)
 }
 
-export function empty() {
-    return makeLogger({})
+export function empty () {
+  return makeLogger({})
 }
 
 export type Logger = Pino.Logger & Contexts
