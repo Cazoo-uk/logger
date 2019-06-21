@@ -138,4 +138,8 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
   }, undefined, options)
 }
 
+export function empty() {
+    return makeLogger({})
+}
+
 export type Logger = Pino.Logger & Contexts
