@@ -1,6 +1,6 @@
 const { test } = require('tap')
 const logger = require('../lib')
-const {sink, once} = require('./helper')
+const { sink, once } = require('./helper')
 
 const event = {
   'account': '123456789012',
