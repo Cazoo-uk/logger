@@ -2,7 +2,7 @@
   "name": "cazoo-logger",
   "version": "1.0.1",
   "description": "Codified standards for structured logging",
-  "main": "index.js",
+  "main": "lib/index.ts",
   "scripts": {
     "test": "standard | snazzy && cross-env NODE_OPTIONS=\"--no-warnings -r qodaa\" tap -j 4 --no-cov test/*test.ts",
     "watch": "tap --watch -j 4 test/*test.ts",
