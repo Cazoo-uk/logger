@@ -53,7 +53,7 @@ export interface LoggerOptions {
 }
 
 function parentLogger (data: object, options?: LoggerOptions) {
-  const level = options && (options.level || 'info')
+  const level = (options && options.level) || 'info'
   if (options && options.stream) {
     return Pino({
       timestamp: false,
