@@ -2,6 +2,22 @@ import Pino from 'pino'
 import uuid from 'uuid/v4'
 import { Context, APIGatewayProxyEvent, ScheduledEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
 
+export interface HttpResponseContext {
+    status: number,
+    error: Error,
+    body: any,
+    elapsedMs: number
+}
+
+export interface HttpRequestContext { url: string, method: string, body: any }
+
+export interface Contexts {
+    withHttpRequest(context: HttpRequestContext): Pino.Logger & Contexts
+    withHttpResponse(context: HttpResponseContext): Pino.Logger & Contexts
+    withData (data: object): Pino.Logger & Contexts
+}
+
+
 function withData (this: Pino.Logger, data: object) {
   return this.child({ data })
 }
