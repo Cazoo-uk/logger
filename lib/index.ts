@@ -3,13 +3,13 @@ import uuid from 'uuid/v4'
 import { Context, APIGatewayProxyEvent, ScheduledEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
 
 export interface HttpResponseContext {
-    status: number,
-    error: Error,
-    body: any,
-    elapsedMs: number
+    status?: number,
+    error?: Error,
+    body?: any,
+    elapsedMs?: number
 }
 
-export interface HttpRequestContext { url: string, method: string, body: any }
+export interface HttpRequestContext { url?: string, method?: string, body?: any }
 
 export interface Contexts {
     withHttpRequest(context: HttpRequestContext): Logger
