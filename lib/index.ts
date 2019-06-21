@@ -12,11 +12,10 @@ export interface HttpResponseContext {
 export interface HttpRequestContext { url: string, method: string, body: any }
 
 export interface Contexts {
-    withHttpRequest(context: HttpRequestContext): Pino.Logger & Contexts
-    withHttpResponse(context: HttpResponseContext): Pino.Logger & Contexts
-    withData (data: object): Pino.Logger & Contexts
+    withHttpRequest(context: HttpRequestContext): Logger
+    withHttpResponse(context: HttpResponseContext): Logger
+    withData (data: object): Logger
 }
-
 
 function withData (this: Pino.Logger, data: object) {
   return this.child({ data })
@@ -138,3 +137,5 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
   }
   }, undefined, options)
 }
+
+export type Logger = Pino.Logger & Contexts
