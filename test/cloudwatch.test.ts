@@ -26,7 +26,7 @@ const context = {
 test('When logging in a cloudwatch event context', async ({ same }) => {
   const stream = sink()
 
-  const log = logger.domainEvent(event, context, { stream })
+  const log = logger.forDomainEvent(event, context, { stream })
   log.info('Hello world')
 
   const result = await once(stream, 'data')

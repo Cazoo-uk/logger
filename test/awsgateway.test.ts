@@ -145,7 +145,7 @@ const event = {
 test('When logging in an API Gateway event context', async ({ same }) => {
   const stream = sink()
 
-  const log = logger.apiGatewayEvent(event, context, stream)
+  const log = logger.forAPIGatewayEvent(event, context, stream)
   log.info('Hello world')
 
   const result = await once(stream, 'data')

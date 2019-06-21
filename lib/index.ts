@@ -6,7 +6,7 @@ function withData (data) {
     return this.child({data});
 }
 
-function completeHttpRequest ({status, error, body, elapsed_ms}) {
+function withHttpResponse ({status, error, body, elapsed_ms}) {
     const bindings = this.bindings()
     const req = (bindings.data && bindings.data.http && bindings.data.http.req)
     return makeLogger({
@@ -25,7 +25,7 @@ function completeHttpRequest ({status, error, body, elapsed_ms}) {
     }, this)
 }
 
-function startHttpRequest ({url, method, body}) {
+function withHttpRequest ({url, method, body}) {
     const requestId = uuid()
     return makeLogger ({
         data: {
@@ -55,14 +55,14 @@ function makeLogger (data: object, parent?: Pino.Logger, stream?) {
     }
     Object.assign(instance, {
         withData,
-        startHttpRequest,
-        completeHttpRequest
+        withHttpRequest,
+        withHttpResponse
     })
 
     return instance
 }
 
-export function domainEvent (event, context:Context, params) {
+export function forDomainEvent (event, context:Context, params) {
     return makeLogger({ context: {
     request_id: context.awsRequestId,
     function: {
@@ -79,7 +79,7 @@ export function domainEvent (event, context:Context, params) {
     }, undefined, params.stream)
 }
 
-export function apiGatewayEvent (event: APIGatewayProxyEvent, context: Context, stream?) {
+export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, stream?) {
     return makeLogger({ context: {
         request_id: context.awsRequestId,
         account_id: event.requestContext.accountId,

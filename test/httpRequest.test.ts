@@ -27,15 +27,15 @@ test('When recording an outbound HTTP request', async ({ match, is }) =>{
 
     const stream = sink()
 
-    let log = logger.domainEvent(event, context, {stream, level: 'debug' })
-    log = log.startHttpRequest({
+    let log = logger.forDomainEvent(event, context, {stream, level: 'debug' })
+    log = log.withHttpRequest({
         url: 'http://google.com',
         method: 'get'
     });
     log.info({type: 'outbound-http'})
     const request = stream.read()
 
-    log.completeHttpRequest({status: 200}).info("Got stuff")
+    log.withHttpResponse({status: 200}).info("Got stuff")
     const response = stream.read()
 
     match(request.data, {
