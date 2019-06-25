@@ -175,8 +175,8 @@ export function empty (options?: LoggerOptions) {
 }
 
 export interface ErrorRecorder {
-    recordError(e: Error) : void
-    recordErrorAsWarning(e: Error) : void
+    recordError(e: any, msg?: string) : void
+    recordErrorAsWarning(e: any, msg?: string) : void
 }
 
 export type Logger = Pino.Logger & Contexts & ErrorRecorder
