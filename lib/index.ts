@@ -61,6 +61,36 @@ function withHttpRequest (this: Pino.Logger,
   }, this)
 }
 
+function makeErrorRecord (error: any, msg?: string) {
+  let errorObj: Error
+
+  if (error instanceof Error) {
+    errorObj = error
+  } else {
+    errorObj = {
+      message: error.toString(),
+      stack: undefined,
+      name: typeof (error)
+    }
+  }
+
+  return {
+    msg: msg || errorObj.message,
+    error: {
+      message: errorObj.message,
+      stack: errorObj.stack,
+      name: errorObj.name
+    } }
+}
+
+function recordError (this: Pino.Logger, e: any, msg?: string) {
+  this.error(makeErrorRecord(e, msg))
+}
+
+function recordErrorAsWarning (this: Pino.Logger, e: any, msg?: string) {
+  this.warn(makeErrorRecord(e, msg))
+}
+
 export interface LoggerOptions {
     stream?: Pino.DestinationStream,
     level?: string
@@ -97,7 +127,9 @@ function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions
   Object.assign(instance, {
     withData,
     withHttpRequest,
-    withHttpResponse
+    withHttpResponse,
+    recordErrorAsWarning,
+    recordError
   })
 
   return instance as Logger
@@ -138,8 +170,13 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
   }, undefined, options)
 }
 
-export function empty () {
-  return makeLogger({})
+export function empty (options?: LoggerOptions) {
+  return makeLogger({}, undefined, options)
 }
 
-export type Logger = Pino.Logger & Contexts
+export interface ErrorRecorder {
+    recordError(e: Error) : void
+    recordErrorAsWarning(e: Error) : void
+}
+
+export type Logger = Pino.Logger & Contexts & ErrorRecorder
