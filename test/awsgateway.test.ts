@@ -3,6 +3,7 @@ const logger = require('../lib')
 const { sink } = require('./helper')
 
 const context = {
+  invokedFunctionArn: 'arn:aws:lambda:region:12345678912:function:function-name:alias-name',
   functionName: 'my-function',
   functionVersion: 'v1.0.1',
   awsRequestId: 'request-id',

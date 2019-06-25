@@ -16,6 +16,7 @@ const event = {
 }
 
 const context = {
+  invokedFunctionArn: 'arn:aws:lambda:region:account-id:function:function-name:alias-name',
   functionName: 'my-function',
   functionVersion: 'v1.0.1',
   awsRequestId: 'request-id',
@@ -36,6 +37,7 @@ test('When logging in a cloudwatch event context', async ({ same }) => {
     v: 1,
     context: {
       request_id: context.awsRequestId,
+      account_id: 'account-id',
       function: {
         name: context.functionName,
         version: context.functionVersion,

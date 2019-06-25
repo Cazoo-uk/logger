@@ -135,9 +135,21 @@ function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions
   return instance as Logger
 }
 
+function parseAccountId (arn: string): string {
+  if (!arn) {
+    return 'missing'
+  }
+  const parts = arn.split(':')
+  if (parts.length >= 5) {
+    return parts[4]
+  }
+  return `unknown (${arn})`
+}
+
 export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
+    account_id: parseAccountId(context.invokedFunctionArn),
     function: {
       name: context.functionName,
       version: context.functionVersion,
@@ -155,7 +167,7 @@ export function forDomainEvent (event: ScheduledEvent, context:Context, options?
 export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger {
   return makeLogger({ context: {
     request_id: context.awsRequestId,
-    account_id: event.requestContext.accountId,
+    account_id: parseAccountId(context.invokedFunctionArn),
     function: {
       name: context.functionName,
       version: context.functionVersion,
