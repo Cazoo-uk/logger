@@ -35,6 +35,12 @@
     "pino": "^5.12.6",
     "uuid": "^3.3.2"
   },
+  "standard": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ]
+  },
   "publishConfig": {
     "@cazoo:registry": "https://gitlab.com/api/v4/projects/12953833/packages/npm/"
   },
