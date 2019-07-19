@@ -1,6 +1,6 @@
 import Pino from 'pino'
 import uuid from 'uuid/v4'
-import { Context, APIGatewayProxyEvent, ScheduledEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
+import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord } from 'aws-lambda' // eslint-disable-line no-unused-vars
 
 export interface HttpResponseContext {
     status?: number,
@@ -180,6 +180,23 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
     }
   }
   }, undefined, options)
+}
+
+export function forSQSRecord (record: SQSRecord, context:Context, options?: LoggerOptions) : Logger {
+    return makeLogger({ context: {
+        request_id: context.awsRequestId,
+        account_id: parseAccountId(context.invokedFunctionArn),
+        function: {
+            name: context.functionName,
+            version: context.functionVersion,
+            service: options.service || context.logStreamName
+        },
+        sqs: {
+            source: record.eventSourceARN,
+            id: record.messageId
+        }
+    }
+                      }, undefined, options)
 }
 
 export function empty (options?: LoggerOptions) {
