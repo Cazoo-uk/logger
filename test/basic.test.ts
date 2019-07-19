@@ -2,6 +2,11 @@ const { test } = require('tap')
 const logger = require('../lib')
 const { sink } = require('./helper')
 
+test('acceptance', ({end}) => {
+    logger.empty().withData({foo: 'bar'}).info('hello world')
+    end()
+})
+
 test('When including data', async ({ match, is }) => {
   const stream = sink()
 
