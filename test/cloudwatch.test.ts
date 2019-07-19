@@ -53,33 +53,32 @@ test('When logging in a cloudwatch event context', async ({ same }) => {
   })
 })
 
-
 test('When specifying a service name', async ({ same }) => {
-    const stream = sink()
-    const service = "my service is the best service"
+  const stream = sink()
+  const service = 'my service is the best service'
 
-    const log = logger.forDomainEvent(event, context, { stream, service })
-    log.info('Hello world')
+  const log = logger.forDomainEvent(event, context, { stream, service })
+  log.info('Hello world')
 
-    const result = await once(stream, 'data')
+  const result = await once(stream, 'data')
 
-    same(result, {
-        level: 'info',
-        v: 1,
-        context: {
-            request_id: context.awsRequestId,
-            account_id: 'account-id',
-            function: {
-                name: context.functionName,
-                version: context.functionVersion,
-                service
-            },
-            event: {
-                source: 'aws.events',
-                type: 'Scheduled Event',
-                id: event.id
-            }
-        },
-        msg: 'Hello world'
-    })
+  same(result, {
+    level: 'info',
+    v: 1,
+    context: {
+      request_id: context.awsRequestId,
+      account_id: 'account-id',
+      function: {
+        name: context.functionName,
+        version: context.functionVersion,
+        service
+      },
+      event: {
+        source: 'aws.events',
+        type: 'Scheduled Event',
+        id: event.id
+      }
+    },
+    msg: 'Hello world'
+  })
 })

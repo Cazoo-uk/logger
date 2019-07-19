@@ -18,7 +18,7 @@ export interface Contexts {
 }
 
 function withData (this: Pino.Logger, data: object) {
-    return makeLogger({data}, this)
+  return makeLogger({ data }, this)
 }
 
 function withHttpResponse (
@@ -146,57 +146,46 @@ function parseAccountId (arn: string): string {
   return `unknown (${arn})`
 }
 
-export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger {
-  return makeLogger({ context: {
-    request_id: context.awsRequestId,
-    account_id: parseAccountId(context.invokedFunctionArn),
+const makeContext = (ctx, options, extra) => {
+  return {
+    request_id: ctx.awsRequestId,
+    account_id: parseAccountId(ctx.invokedFunctionArn),
     function: {
-      name: context.functionName,
-      version: context.functionVersion,
-      service: options.service || context.logStreamName
+      name: ctx.functionName,
+      version: ctx.functionVersion,
+      service: (options && options.service) || ctx.logStreamName
     },
+    ...extra
+  }
+}
+
+export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger {
+  const ctx = makeContext(context, options, {
     event: {
       source: event.source,
       type: event['detail-type'],
       id: event.id
-    }
-  }
-  }, undefined, options)
+    } })
+  return makeLogger({ context: ctx }, undefined, options)
 }
 
 export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger {
-  return makeLogger({ context: {
-    request_id: context.awsRequestId,
-    account_id: parseAccountId(context.invokedFunctionArn),
-    function: {
-      name: context.functionName,
-      version: context.functionVersion,
-      service: context.logStreamName,
-      stage: event.requestContext.stage
-    },
+  const ctx = makeContext(context, options, {
     http: {
       path: event.path,
-      method: event.httpMethod
-    }
-  }
-  }, undefined, options)
+      method: event.httpMethod,
+      stage: event.requestContext.stage
+    } })
+  return makeLogger({ context: ctx }, undefined, options)
 }
 
 export function forSQSRecord (record: SQSRecord, context:Context, options?: LoggerOptions) : Logger {
-    return makeLogger({ context: {
-        request_id: context.awsRequestId,
-        account_id: parseAccountId(context.invokedFunctionArn),
-        function: {
-            name: context.functionName,
-            version: context.functionVersion,
-            service: options.service || context.logStreamName
-        },
-        sqs: {
-            source: record.eventSourceARN,
-            id: record.messageId
-        }
-    }
-                      }, undefined, options)
+  const ctx = makeContext(context, options, {
+    sqs: {
+      source: record.eventSourceARN,
+      id: record.messageId
+    } })
+  return makeLogger({ context: ctx }, undefined, options)
 }
 
 export function empty (options?: LoggerOptions) {

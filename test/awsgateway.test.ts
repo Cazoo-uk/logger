@@ -160,12 +160,12 @@ test('When logging in an API Gateway event context', async ({ same }) => {
       function: {
         name: context.functionName,
         version: context.functionVersion,
-        service: context.logStreamName,
-        stage: event.requestContext.stage
+        service: context.logStreamName
       },
       http: {
         path: event.path,
-        method: event.httpMethod
+        method: event.httpMethod,
+        stage: event.requestContext.stage
       }
     },
     msg: 'Hello world'
