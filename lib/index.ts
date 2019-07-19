@@ -18,7 +18,7 @@ export interface Contexts {
 }
 
 function withData (this: Pino.Logger, data: object) {
-  return makeLogger(data, this)
+    return makeLogger({data}, this)
 }
 
 function withHttpResponse (
