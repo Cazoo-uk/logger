@@ -3,7 +3,8 @@ image: node:10
 before_script:
   - npm install
 
-test:node:10
+test:node:10:
+  stage: test
   image: node:10
   script:
     - npm test
