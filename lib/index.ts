@@ -1,4 +1,4 @@
-import Pino from 'pino'
+import Pino = require('pino')
 import uuid from 'uuid/v4'
 import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord } from 'aws-lambda' // eslint-disable-line no-unused-vars
 
