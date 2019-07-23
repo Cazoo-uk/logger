@@ -23,3 +23,19 @@ test('When including data', async ({ match, is }) => {
     }
   })
 })
+
+test('When options are set in the environment', async ({match}) => {
+
+    const stream = sink()
+
+    process.env.CAZOO_LOGGER_LEVEL = 'debug'
+
+    let log = logger.empty({stream})
+    log.debug('random fandom')
+    const request = stream.read()
+
+    match(request, {
+        level: 'debug',
+        msg: 'random fandom',
+    })
+})

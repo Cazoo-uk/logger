@@ -98,7 +98,7 @@ export interface LoggerOptions {
 }
 
 function parentLogger (data: object, options?: LoggerOptions) {
-  const level = (options && options.level) || 'info'
+  const level = (options && options.level) || process.env.CAZOO_LOGGER_LEVEL || 'info'
   if (options && options.stream) {
     return Pino({
       timestamp: false,
@@ -153,7 +153,7 @@ const makeContext = (ctx, options, extra) => {
     function: {
       name: ctx.functionName,
       version: ctx.functionVersion,
-      service: (options && options.service) || ctx.logStreamName
+      service: (options && options.service) || process.env.CAZOO_LOGGER_SERVICE || ctx.logStreamName
     },
     ...extra
   }
