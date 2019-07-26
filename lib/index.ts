@@ -1,30 +1,30 @@
 import uuid from 'uuid/v4'
-import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
+import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent, CloudFrontRequestEvent  } from 'aws-lambda' // eslint-disable-line no-unused-vars
 import Pino = require('pino') // eslint-disable-line no-unused-vars
 
 export interface HttpResponseContext {
-    status?: number,
-    error?: Error,
-    body?: any,
-    elapsedMs?: number
+  status?: number,
+  error?: Error,
+  body?: any,
+  elapsedMs?: number
 }
 
 export interface HttpRequestContext { url?: string, method?: string, body?: any }
 
 export interface Contexts {
-    withHttpRequest(context: HttpRequestContext): Logger
-    withHttpResponse(context: HttpResponseContext): Logger
-    withData (data: object): Logger
+  withHttpRequest(context: HttpRequestContext): Logger
+  withHttpResponse(context: HttpResponseContext): Logger
+  withData(data: object): Logger
 }
 
-function withData (this: Pino.Logger, data: object) {
+function withData(this: Pino.Logger, data: object) {
   return makeLogger({ data }, this)
 }
 
-function withHttpResponse (
+function withHttpResponse(
   this: Pino.Logger,
   { status, error, body, elapsedMs }:
-                           { status: number, error: Error, body: any, elapsedMs: number }) {
+    { status: number, error: Error, body: any, elapsedMs: number }) {
   const bindings: any = (this as any).bindings()
   const req = bindings && bindings.data && bindings.data.http && bindings.data.http.req
 
@@ -44,7 +44,7 @@ function withHttpResponse (
   }, this)
 }
 
-function withHttpRequest (this: Pino.Logger,
+function withHttpRequest(this: Pino.Logger,
   { url, method, body }: { url: string, method: string, body: any }) {
   const requestId = uuid()
   return makeLogger({
@@ -61,7 +61,7 @@ function withHttpRequest (this: Pino.Logger,
   }, this)
 }
 
-function makeErrorRecord (error: any, msg?: string) {
+function makeErrorRecord(error: any, msg?: string) {
   let errorObj: Error
 
   if (error instanceof Error) {
@@ -80,24 +80,25 @@ function makeErrorRecord (error: any, msg?: string) {
       message: errorObj.message,
       stack: errorObj.stack,
       name: errorObj.name
-    } }
+    }
+  }
 }
 
-function recordError (this: Pino.Logger, e: any, msg?: string) {
+function recordError(this: Pino.Logger, e: any, msg?: string) {
   this.error(makeErrorRecord(e, msg))
 }
 
-function recordErrorAsWarning (this: Pino.Logger, e: any, msg?: string) {
+function recordErrorAsWarning(this: Pino.Logger, e: any, msg?: string) {
   this.warn(makeErrorRecord(e, msg))
 }
 
 export interface LoggerOptions {
-    stream?: Pino.DestinationStream,
-    level?: string
-    service?: string
+  stream?: Pino.DestinationStream,
+  level?: string
+  service?: string
 }
 
-function parentLogger (data: object, options?: LoggerOptions) {
+function parentLogger(data: object, options?: LoggerOptions) {
   const level = (options && options.level) || process.env.CAZOO_LOGGER_LEVEL || 'info'
   if (options && options.stream) {
     return Pino({
@@ -116,7 +117,7 @@ function parentLogger (data: object, options?: LoggerOptions) {
   })
 }
 
-function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions) : Logger {
+function makeLogger(data: object, parent?: Pino.Logger, options?: LoggerOptions): Logger {
   let instance: Pino.Logger
 
   if (parent === undefined) {
@@ -135,7 +136,7 @@ function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions
   return instance as Logger
 }
 
-function parseAccountId (arn: string): string {
+function parseAccountId(arn: string): string {
   if (!arn) {
     return 'missing'
   }
@@ -175,7 +176,8 @@ export function forDomainEvent (event: ScheduledEvent, context:Context, options?
       source: event.source,
       type: event['detail-type'],
       id: event.id
-    } })
+    }
+  })
   return makeLogger({ context: ctx }, undefined, options)
 }
 
@@ -188,7 +190,8 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
       path: event.path,
       method: event.httpMethod,
       stage: event.requestContext.stage
-    } })
+    }
+  })
   return makeLogger({ context: ctx }, undefined, options)
 }
 
@@ -198,7 +201,23 @@ export function forSQSRecord (record: SQSRecord, context:Context, options?: Logg
     sqs: {
       source: record.eventSourceARN,
       id: record.messageId
-    } })
+    }
+  })
+  return makeLogger({ context: ctx }, undefined, options)
+}
+
+export function forCloudFrontRequest(request: CloudFrontRequestEvent, context: Context, options?: LoggerOptions): Logger {
+  const cf = request.Records[0].cf
+  const ctx = makeContext(context, options, {
+    cf: {
+      uri: cf.request.uri,
+      query: cf.request.querystring,
+      method: cf.request.method,
+      dist: cf.config.distributionId,
+      type: cf.config.eventType,
+      id: cf.config.requestId
+    }
+  })
   return makeLogger({ context: ctx }, undefined, options)
 }
 
@@ -241,8 +260,8 @@ export function fromContext (event, context, options) {
 }
 
 export interface ErrorRecorder {
-    recordError(e: any, msg?: string) : void
-    recordErrorAsWarning(e: any, msg?: string) : void
+  recordError(e: any, msg?: string): void
+  recordErrorAsWarning(e: any, msg?: string): void
 }
 
 export type Logger = Pino.Logger & Contexts & ErrorRecorder
