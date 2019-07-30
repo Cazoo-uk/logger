@@ -86,8 +86,7 @@ test('When logging in a cloudwatch event context', async ({ same }) => {
         service: context.logStreamName
       },
       cf: {
-        uri: '/picture.jpg',
-        query: 'size=large',
+        path: '/picture.jpg',
         method: 'GET',
         dist: 'EDFDVBD6EXAMPLE',
         type: 'viewer-request',

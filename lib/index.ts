@@ -210,8 +210,7 @@ export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: 
   const cf = request.Records[0].cf
   const ctx = makeContext(context, options, {
     cf: {
-      uri: cf.request.uri,
-      query: cf.request.querystring,
+      path: cf.request.uri,
       method: cf.request.method,
       dist: cf.config.distributionId,
       type: cf.config.eventType,
