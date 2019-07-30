@@ -83,22 +83,22 @@ test('When specifying a service name', async ({ same }) => {
   })
 })
 
-test('When specifying the service as an env var', async ({match}) => {
-    const stream = sink()
-    const service = 'my service is the best service'
-    process.env.CAZOO_LOGGER_SERVICE = service
+test('When specifying the service as an env var', async ({ match }) => {
+  const stream = sink()
+  const service = 'my service is the best service'
+  process.env.CAZOO_LOGGER_SERVICE = service
 
-    const log = logger.forDomainEvent(event, context, { stream, service })
-    log.info('Hello world')
+  const log = logger.forDomainEvent(event, context, { stream, service })
+  log.info('Hello world')
 
-    const result = await once(stream, 'data')
+  const result = await once(stream, 'data')
 
-    match(result, {
-        context: {
-            function: {
-                service
-            },
-        },
-        msg: 'Hello world'
-    })
+  match(result, {
+    context: {
+      function: {
+        service
+      }
+    },
+    msg: 'Hello world'
+  })
 })

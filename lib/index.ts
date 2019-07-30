@@ -1,6 +1,6 @@
-import Pino = require('pino')
 import uuid from 'uuid/v4'
-import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord } from 'aws-lambda' // eslint-disable-line no-unused-vars
+import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
+import Pino = require('pino') // eslint-disable-line no-unused-vars
 
 export interface HttpResponseContext {
     status?: number,
@@ -185,6 +185,31 @@ export function forSQSRecord (record: SQSRecord, context:Context, options?: Logg
       source: record.eventSourceARN,
       id: record.messageId
     } })
+  return makeLogger({ context: ctx }, undefined, options)
+}
+
+export function forSNS (event: SNSEvent, context:Context, options?: LoggerOptions) : Logger {
+  const record = event.Records[0]
+  if (record.EventSource !== 'aws:sns') { return null }
+
+  const ctx = makeContext(context, options, {
+    event: {
+      id: record.Sns.MessageId,
+      source: record.Sns.TopicArn
+    }
+  })
+  if (record.Sns.Subject === 'Amazon S3 Notification') {
+    try {
+      const msg = JSON.parse(record.Sns.Message)
+      const s3 = msg.Records[0].s3
+      ctx.s3 = {
+        bucket: s3.bucket.name,
+        key: s3.object.key
+      }
+    } catch (e) {
+      // bovvered
+    }
+  }
   return makeLogger({ context: ctx }, undefined, options)
 }
 
