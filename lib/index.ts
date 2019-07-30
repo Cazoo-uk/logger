@@ -17,11 +17,11 @@ export interface Contexts {
   withData(data: object): Logger
 }
 
-function withData(this: Pino.Logger, data: object) {
+function withData (this: Pino.Logger, data: object) {
   return makeLogger({ data }, this)
 }
 
-function withHttpResponse(
+function withHttpResponse (
   this: Pino.Logger,
   { status, error, body, elapsedMs }:
     { status: number, error: Error, body: any, elapsedMs: number }) {
@@ -44,7 +44,7 @@ function withHttpResponse(
   }, this)
 }
 
-function withHttpRequest(this: Pino.Logger,
+function withHttpRequest (this: Pino.Logger,
   { url, method, body }: { url: string, method: string, body: any }) {
   const requestId = uuid()
   return makeLogger({
@@ -61,7 +61,7 @@ function withHttpRequest(this: Pino.Logger,
   }, this)
 }
 
-function makeErrorRecord(error: any, msg?: string) {
+function makeErrorRecord (error: any, msg?: string) {
   let errorObj: Error
 
   if (error instanceof Error) {
@@ -84,11 +84,11 @@ function makeErrorRecord(error: any, msg?: string) {
   }
 }
 
-function recordError(this: Pino.Logger, e: any, msg?: string) {
+function recordError (this: Pino.Logger, e: any, msg?: string) {
   this.error(makeErrorRecord(e, msg))
 }
 
-function recordErrorAsWarning(this: Pino.Logger, e: any, msg?: string) {
+function recordErrorAsWarning (this: Pino.Logger, e: any, msg?: string) {
   this.warn(makeErrorRecord(e, msg))
 }
 
@@ -98,7 +98,7 @@ export interface LoggerOptions {
   service?: string
 }
 
-function parentLogger(data: object, options?: LoggerOptions) {
+function parentLogger (data: object, options?: LoggerOptions) {
   const level = (options && options.level) || process.env.CAZOO_LOGGER_LEVEL || 'info'
   if (options && options.stream) {
     return Pino({
@@ -117,7 +117,7 @@ function parentLogger(data: object, options?: LoggerOptions) {
   })
 }
 
-function makeLogger(data: object, parent?: Pino.Logger, options?: LoggerOptions): Logger {
+function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions): Logger {
   let instance: Pino.Logger
 
   if (parent === undefined) {
@@ -136,7 +136,7 @@ function makeLogger(data: object, parent?: Pino.Logger, options?: LoggerOptions)
   return instance as Logger
 }
 
-function parseAccountId(arn: string): string {
+function parseAccountId (arn: string): string {
   if (!arn) {
     return 'missing'
   }
@@ -206,7 +206,7 @@ export function forSQSRecord (record: SQSRecord, context:Context, options?: Logg
   return makeLogger({ context: ctx }, undefined, options)
 }
 
-export function forCloudFrontRequest(request: CloudFrontRequestEvent, context: Context, options?: LoggerOptions): Logger {
+export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: Context, options?: LoggerOptions): Logger {
   const cf = request.Records[0].cf
   const ctx = makeContext(context, options, {
     cf: {
