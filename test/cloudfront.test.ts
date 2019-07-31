@@ -69,7 +69,7 @@ const context = {
 test('When logging in a cloudwatch event context', async ({ same }) => {
   const stream = sink()
 
-  const log = logger.forCloudFrontRequest(requestEvent, context, { stream })
+  const log = logger.fromContext(requestEvent, context, { stream })
   log.info('Hello world')
 
   const result = await once(stream, 'data')

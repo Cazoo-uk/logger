@@ -207,6 +207,9 @@ export function forSQSRecord (record: SQSRecord, context:Context, options?: Logg
 }
 
 export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: Context, options?: LoggerOptions): Logger {
+  if (!Array.isArray(request.Records) || request.Records[0].cf === undefined) {
+    return null
+  }
   const cf = request.Records[0].cf
   const ctx = makeContext(context, options, {
     cf: {
@@ -250,7 +253,9 @@ export function fromContext (event, context, options) {
     return forDomainEvent(event, context, options) ||
         forAPIGatewayEvent(event, context, options) ||
         forSNS(event, context, options) ||
-        forSQSRecord(event, context, options)
+          forSQSRecord(event, context, options) ||
+          forCloudFrontRequest(event, context, options) ||
+          empty()
   } catch (e) {
     const log = empty()
     log.recordError(e)
