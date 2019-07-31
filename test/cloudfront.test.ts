@@ -1,4 +1,4 @@
-import { CloudFrontRequestEvent } from 'aws-lambda'
+import { CloudFrontRequestEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
 
 const { test } = require('tap')
 const logger = require('../lib')

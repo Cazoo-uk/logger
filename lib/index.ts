@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4'
-import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent, CloudFrontRequestEvent  } from 'aws-lambda' // eslint-disable-line no-unused-vars
+import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent, CloudFrontRequestEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
 import Pino = require('pino') // eslint-disable-line no-unused-vars
 
 export interface HttpResponseContext {
