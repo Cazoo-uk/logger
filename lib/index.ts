@@ -159,7 +159,17 @@ const makeContext = (ctx, options, extra) => {
   }
 }
 
+function has (obj, ...props) {
+  for (const p of props) {
+    if (!obj.hasOwnProperty(p)) { return false }
+  }
+  return true
+}
+
 export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger {
+  if (!has(event, 'detail', 'detail-type', 'source', 'id')) {
+    return null
+  }
   const ctx = makeContext(context, options, {
     event: {
       source: event.source,
@@ -170,6 +180,9 @@ export function forDomainEvent (event: ScheduledEvent, context:Context, options?
 }
 
 export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger {
+  if (!has(event, 'path', 'httpMethod', 'requestContext')) {
+    return null
+  }
   const ctx = makeContext(context, options, {
     http: {
       path: event.path,
@@ -180,6 +193,7 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
 }
 
 export function forSQSRecord (record: SQSRecord, context:Context, options?: LoggerOptions) : Logger {
+  if (!has(record, 'eventSourceARN', 'messageId')) { return null }
   const ctx = makeContext(context, options, {
     sqs: {
       source: record.eventSourceARN,
@@ -199,15 +213,11 @@ export function forSNS (event: SNSEvent, context:Context, options?: LoggerOption
     }
   })
   if (record.Sns.Subject === 'Amazon S3 Notification') {
-    try {
-      const msg = JSON.parse(record.Sns.Message)
-      const s3 = msg.Records[0].s3
-      ctx.s3 = {
-        bucket: s3.bucket.name,
-        key: s3.object.key
-      }
-    } catch (e) {
-      // bovvered
+    const msg = JSON.parse(record.Sns.Message)
+    const s3 = msg.Records[0].s3
+    ctx.s3 = {
+      bucket: s3.bucket.name,
+      key: s3.object.key
     }
   }
   return makeLogger({ context: ctx }, undefined, options)
@@ -215,6 +225,19 @@ export function forSNS (event: SNSEvent, context:Context, options?: LoggerOption
 
 export function empty (options?: LoggerOptions) {
   return makeLogger({}, undefined, options)
+}
+
+export function fromContext (event, context, options) {
+  try {
+    return forDomainEvent(event, context, options) ||
+        forAPIGatewayEvent(event, context, options) ||
+        forSNS(event, context, options) ||
+        forSQSRecord(event, context, options)
+  } catch (e) {
+    const log = empty()
+    log.recordError(e)
+    return e
+  }
 }
 
 export interface ErrorRecorder {

@@ -27,7 +27,7 @@ const context = {
 test('When logging in a cloudwatch event context', async ({ same }) => {
   const stream = sink()
 
-  const log = logger.forDomainEvent(event, context, { stream })
+  const log = logger.fromContext(event, context, { stream })
   log.info('Hello world')
 
   const result = await once(stream, 'data')
@@ -57,7 +57,7 @@ test('When specifying a service name', async ({ same }) => {
   const stream = sink()
   const service = 'my service is the best service'
 
-  const log = logger.forDomainEvent(event, context, { stream, service })
+  const log = logger.fromContext(event, context, { stream, service })
   log.info('Hello world')
 
   const result = await once(stream, 'data')
@@ -88,7 +88,7 @@ test('When specifying the service as an env var', async ({ match }) => {
   const service = 'my service is the best service'
   process.env.CAZOO_LOGGER_SERVICE = service
 
-  const log = logger.forDomainEvent(event, context, { stream, service })
+  const log = logger.fromContext(event, context, { stream, service })
   log.info('Hello world')
 
   const result = await once(stream, 'data')
