@@ -36,6 +36,7 @@
   "dependencies": {
     "@types/pino": "^5.8.8",
     "pino": "^5.12.6",
+    "pino-pretty": "^3.2.0",
     "uuid": "^3.3.2"
   },
   "standard": {
