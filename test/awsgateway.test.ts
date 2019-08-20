@@ -165,7 +165,11 @@ test('When logging in an API Gateway event context', async ({ same }) => {
       http: {
         path: event.path,
         method: event.httpMethod,
-        stage: event.requestContext.stage
+        stage: event.requestContext.stage,
+          query: {
+              name: ['me'],
+              multivalueName: ['you', 'me']
+          }
       }
     },
     msg: 'Hello world'

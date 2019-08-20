@@ -189,7 +189,8 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
     http: {
       path: event.path,
       method: event.httpMethod,
-      stage: event.requestContext.stage
+        stage: event.requestContext.stage,
+        query: event.multiValueQueryStringParameters
     }
   })
   return makeLogger({ context: ctx }, undefined, options)
