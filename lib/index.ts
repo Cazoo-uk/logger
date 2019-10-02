@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4'
-import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent, CloudFrontRequestEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
+import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent, CloudFrontRequestEvent, DynamoDBStreamEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
 import Pino = require('pino') // eslint-disable-line no-unused-vars
 
 export interface HttpResponseContext {
@@ -167,7 +167,7 @@ function has (obj, ...props) {
   return true
 }
 
-export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger {
+export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger | null {
   if (!has(event, 'detail', 'detail-type', 'source', 'id')) {
     return null
   }
@@ -181,7 +181,7 @@ export function forDomainEvent (event: ScheduledEvent, context:Context, options?
   return makeLogger({ context: ctx }, undefined, options)
 }
 
-export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger {
+export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger | null {
   if (!has(event, 'path', 'httpMethod', 'requestContext')) {
     return null
   }
@@ -196,7 +196,7 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
   return makeLogger({ context: ctx }, undefined, options)
 }
 
-export function forSQSRecord (record: SQSRecord, context:Context, options?: LoggerOptions) : Logger {
+export function forSQSRecord (record: SQSRecord, context:Context, options?: LoggerOptions) : Logger | null {
   if (!has(record, 'eventSourceARN', 'messageId')) { return null }
   const ctx = makeContext(context, options, {
     sqs: {
@@ -207,7 +207,7 @@ export function forSQSRecord (record: SQSRecord, context:Context, options?: Logg
   return makeLogger({ context: ctx }, undefined, options)
 }
 
-export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: Context, options?: LoggerOptions): Logger {
+export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: Context, options?: LoggerOptions): Logger | null {
   if (!Array.isArray(request.Records) || request.Records[0].cf === undefined) {
     return null
   }
@@ -224,7 +224,7 @@ export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: 
   return makeLogger({ context: ctx }, undefined, options)
 }
 
-export function forSNS (event: SNSEvent, context:Context, options?: LoggerOptions) : Logger {
+export function forSNS (event: SNSEvent, context:Context, options?: LoggerOptions) : Logger | null {
   const record = event.Records[0]
   if (record.EventSource !== 'aws:sns') { return null }
 
@@ -245,6 +245,23 @@ export function forSNS (event: SNSEvent, context:Context, options?: LoggerOption
   return makeLogger({ context: ctx }, undefined, options)
 }
 
+export function forDynamoDBStream (event: DynamoDBStreamEvent, context: Context, options?: LoggerOptions): Logger | null {
+  const record = event.Records[0]
+  if (record.eventSource !== 'aws:dynamodb') {
+    return null
+  }
+
+  const ctx = makeContext(context, options, {
+    event: {
+      id: record.eventID,
+      source: record.eventSourceARN,
+      type: record.eventName
+    }
+  })
+
+  return makeLogger({ context: ctx }, undefined, options)
+}
+
 export function empty (options?: LoggerOptions) {
   return makeLogger({}, undefined, options)
 }
@@ -256,6 +273,7 @@ export function fromContext (event, context, options) {
         forSNS(event, context, options) ||
           forSQSRecord(event, context, options) ||
           forCloudFrontRequest(event, context, options) ||
+          forDynamoDBStream(event, context, options) ||
           empty()
   } catch (e) {
     const log = empty()
