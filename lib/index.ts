@@ -182,15 +182,17 @@ export function forDomainEvent (event: ScheduledEvent, context:Context, options?
 }
 
 export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger | null {
-  if (!has(event, 'path', 'httpMethod', 'requestContext')) {
+  if (!has(event, 'requestContext')) {
     return null
   }
   const ctx = makeContext(context, options, {
     http: {
       path: event.path,
+      connectionId: event.requestContext.connectionId,
       method: event.httpMethod,
-        stage: event.requestContext.stage,
-        query: event.multiValueQueryStringParameters
+      stage: event.requestContext.stage,
+      routeKey: event.requestContext.routeKey,
+      query: event.multiValueQueryStringParameters
     }
   })
   return makeLogger({ context: ctx }, undefined, options)

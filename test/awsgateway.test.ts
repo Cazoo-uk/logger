@@ -166,10 +166,78 @@ test('When logging in an API Gateway event context', async ({ same }) => {
         path: event.path,
         method: event.httpMethod,
         stage: event.requestContext.stage,
-          query: {
-              name: ['me'],
-              multivalueName: ['you', 'me']
-          }
+        query: {
+          name: ['me'],
+          multivalueName: ['you', 'me']
+        }
+      }
+    },
+    msg: 'Hello world'
+  })
+})
+
+const websocketEvent = {
+  multiValueHeaders:
+{ Host: [ 'mv55h24unj.execute-api.eu-west-1.amazonaws.com' ],
+  'Sec-WebSocket-Extensions': [ 'permessage-deflate; client_max_window_bits' ],
+  'Sec-WebSocket-Key': [ 'e7ooTbmoPh+eoEXzKOcU2Q==' ],
+  'Sec-WebSocket-Version': [ '13' ],
+  'X-Amzn-Trace-Id': [ 'Root=1-5da8e529-e9bb2fd0a5832d74bd471428' ],
+  'X-Forwarded-For': [ '86.18.92.102' ],
+  'X-Forwarded-Port': [ '443' ],
+  'X-Forwarded-Proto': [ 'https' ] },
+  requestContext:
+{ routeKey: '$connect',
+  messageId: null,
+  eventType: 'CONNECT',
+  extendedRequestId: 'Bui-jHH4joEF3fQ=',
+  requestTime: '17/Oct/2019:22:03:21 +0000',
+  messageDirection: 'IN',
+  stage: 'dev',
+  connectedAt: 1571349801845,
+  requestTimeEpoch: 1571349801846,
+  identity:
+{ cognitoIdentityPoolId: null,
+  cognitoIdentityId: null,
+  principalOrgId: null,
+  cognitoAuthenticationType: null,
+  userArn: null,
+  userAgent: null,
+  accountId: null,
+  caller: null,
+  sourceIp: '86.18.92.102',
+  accessKey: null,
+  cognitoAuthenticationProvider: null,
+  user: null },
+  requestId: 'Bui-jHH4joEF3fQ=',
+  domainName: 'mv55h24unj.execute-api.eu-west-1.amazonaws.com',
+  connectionId: 'Bui-jdesjoECJWg=',
+  apiId: 'mv55h24unj' },
+  isBase64Encoded: false }
+
+test('When logging a websocket request', async ({ same }) => {
+  const stream = sink()
+
+  const log = logger.fromContext(websocketEvent, context, { stream })
+  log.info('Hello world')
+
+  const result = stream.read()
+
+  same(result, {
+    level: 'info',
+    v: 1,
+    context: {
+      request_id: context.awsRequestId,
+      account_id: event.requestContext.accountId,
+      function: {
+        name: context.functionName,
+        version: context.functionVersion,
+        service: context.logStreamName
+      },
+      http: {
+        stage: websocketEvent.requestContext.stage,
+        connectionId: 'Bui-jdesjoECJWg=',
+        routeKey: '$connect'
       }
     },
     msg: 'Hello world'
