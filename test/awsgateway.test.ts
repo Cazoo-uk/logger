@@ -176,6 +176,52 @@ test('When logging in an API Gateway event context', async ({ same }) => {
   })
 })
 
+test('When using withContext to provide additional context information', async ({ same }) => {
+  const vrm: string = "ABCDEF"
+  const usefulField: number = 123
+  const stream = sink()
+
+  // ARRANGE
+  const log = logger
+    .fromContext(event, context, { stream })
+    .withContext({ vrm, usefulField })
+
+  let results = []
+  stream.on('data', (args) => {
+    const { msg, context: { vrm, usefulField } } = args
+    results.push({
+      message: msg,
+      context: {
+        vrm,
+        usefulField
+      }
+    })
+  })
+
+  // ACT
+  log.info('Hello world')
+  log.warn('Warn message')
+  
+  // ASSERT
+  same(results.length, 2)
+
+  same({
+    message: 'Hello world',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[0])
+
+  same({
+    message: 'Warn message',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[1])
+})
+
 const websocketEvent = {
   multiValueHeaders:
 { Host: [ 'mv55h24unj.execute-api.eu-west-1.amazonaws.com' ],
@@ -242,4 +288,51 @@ test('When logging a websocket request', async ({ same }) => {
     },
     msg: 'Hello world'
   })
+})
+
+
+test('When using withContext to provide additional context information', async ({ same }) => {
+  const vrm: string = "ABCDEF"
+  const usefulField: number = 123
+  const stream = sink()
+
+  // ARRANGE
+  const log = logger
+    .fromContext(websocketEvent, context, { stream })
+    .withContext({ vrm, usefulField })
+
+  let results = []
+  stream.on('data', (args) => {
+    const { msg, context: { vrm, usefulField } } = args
+    results.push({
+      message: msg,
+      context: {
+        vrm,
+        usefulField
+      }
+    })
+  })
+
+  // ACT
+  log.info('Hello world')
+  log.warn('Warn message')
+  
+  // ASSERT
+  same(results.length, 2)
+
+  same({
+    message: 'Hello world',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[0])
+
+  same({
+    message: 'Warn message',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[1])
 })

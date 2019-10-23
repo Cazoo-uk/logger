@@ -104,6 +104,52 @@ test('When logging in an S3 SNS context', async ({ same }) => {
   })
 })
 
+test('When using withContext to provide additional context information', async ({ same }) => {
+  const vrm: string = "ABCDEF"
+  const usefulField: number = 123
+  const stream = sink()
+
+  // ARRANGE
+  const log = logger
+    .fromContext(event, context, { stream })
+    .withContext({ vrm, usefulField })
+
+  let results = []
+  stream.on('data', (args) => {
+    const { msg, context: { vrm, usefulField } } = args
+    results.push({
+      message: msg,
+      context: {
+        vrm,
+        usefulField
+      }
+   })
+  })
+
+  // ACT
+  log.info('Hello world')
+  log.warn('Warn message')
+  
+  // ASSERT
+  same(results.length, 2)
+
+  same({
+    message: 'Hello world',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[0])
+
+  same({
+    message: 'Warn message',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[1])
+})
+
 test('When logging in a non S3 SNS context', async ({ same }) => {
   const stream = sink()
 
@@ -130,4 +176,50 @@ test('When logging in a non S3 SNS context', async ({ same }) => {
     },
     msg: 'Hello world'
   })
+})
+
+test('When using withContext to provide additional context information', async ({ same }) => {
+  const vrm: string = "ABCDEF"
+  const usefulField: number = 123
+  const stream = sink()
+
+  // ARRANGE
+  const log = logger
+    .fromContext(nonS3Event, context, { stream })
+    .withContext({ vrm, usefulField })
+
+  let results = []
+  stream.on('data', (args) => {
+    const { msg, context: { vrm, usefulField } } = args
+    results.push({
+      message: msg,
+      context: {
+        vrm,
+        usefulField
+      }
+   })
+  })
+
+  // ACT
+  log.info('Hello world')
+  log.warn('Warn message')
+  
+  // ASSERT
+  same(results.length, 2)
+
+  same({
+    message: 'Hello world',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[0])
+
+  same({
+    message: 'Warn message',
+    context: {
+      vrm,
+      usefulField
+    }
+  }, results[1])
 })

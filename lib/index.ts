@@ -15,10 +15,22 @@ export interface Contexts {
   withHttpRequest(context: HttpRequestContext): Logger
   withHttpResponse(context: HttpResponseContext): Logger
   withData(data: object): Logger
+  withContext(data: object): Logger
 }
 
 function withData (this: Pino.Logger, data: object) {
   return makeLogger({ data }, this)
+}
+
+function withContext (this: Pino.Logger, data: object) {  
+  const bindings: any = (this as any).bindings()
+  const context = bindings.context
+
+  const mergedContext = {
+    ...context,
+    ...data
+  }
+  return makeLogger({ context: mergedContext}, this)
 }
 
 function withHttpResponse (
@@ -127,6 +139,7 @@ function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions
   }
   Object.assign(instance, {
     withData,
+    withContext,
     withHttpRequest,
     withHttpResponse,
     recordErrorAsWarning,
