@@ -1,89 +1,175 @@
-import uuid from 'uuid/v4'
-import { Context, APIGatewayProxyEvent, ScheduledEvent, SQSRecord, SNSEvent, CloudFrontRequestEvent, DynamoDBStreamEvent } from 'aws-lambda' // eslint-disable-line no-unused-vars
-import Pino = require('pino') // eslint-disable-line no-unused-vars
+import uuid from "uuid/v4";
+
+import {
+  Context,
+  APIGatewayProxyEvent,
+  ScheduledEvent,
+  SQSRecord,
+  SNSEvent,
+  CloudFrontRequestEvent,
+  DynamoDBStreamEvent
+} from "aws-lambda";
+
+import Pino from "pino";
 
 export interface HttpResponseContext {
-  status?: number,
-  error?: Error,
-  body?: any,
-  elapsedMs?: number
+  status?: number;
+  error?: Error;
+  body?: any;
+  elapsedMs?: number;
 }
 
-export interface HttpRequestContext { url?: string, method?: string, body?: any }
+export interface HttpRequestContext {
+  url?: string;
+  method?: string;
+  body?: any;
+}
 
 export interface Contexts {
-  withHttpRequest(context: HttpRequestContext): Logger
-  withHttpResponse(context: HttpResponseContext): Logger
-  withData(data: object): Logger
-  withContext(data: object): Logger
+  withHttpRequest(context: HttpRequestContext): Logger;
+  withHttpResponse(context: HttpResponseContext): Logger;
+  withData(data: object): Logger;
+  withContext(data: object): Logger;
 }
 
-function withData (this: Pino.Logger, data: object) {
-  return makeLogger({ data }, this)
+function parentLogger(data: object, options?: LoggerOptions): Pino.Logger {
+  const level =
+    (options && options.level) || process.env.CAZOO_LOGGER_LEVEL || "info";
+
+  if (options && options.stream) {
+    return Pino(
+      {
+        timestamp: false,
+        base: data,
+        useLevelLabels: true,
+        level
+      },
+      options.stream
+    );
+  }
+
+  return Pino({
+    timestamp: false,
+    base: data,
+    useLevelLabels: true,
+    level
+  });
 }
 
-function withContext (this: Pino.Logger, data: object) {  
-  const bindings: any = (this as any).bindings()
-  const context = bindings.context
+function makeLogger(
+  data: object,
+  parent?: Pino.Logger,
+  options?: LoggerOptions
+): Logger {
+  let instance: Pino.Logger;
+
+  if (parent === undefined) {
+    instance = parentLogger(data, options);
+  } else {
+    instance = parent.child(data);
+  }
+  Object.assign(instance, {
+    /* eslint-disable @typescript-eslint/no-use-before-define */
+    withData,
+    withContext,
+    withHttpRequest,
+    withHttpResponse,
+    recordErrorAsWarning,
+    recordError
+    /* eslint-enable @typescript-eslint/no-use-before-define */
+  });
+
+  return instance as Logger;
+}
+
+function withData(this: Pino.Logger, data: object): Logger {
+  return makeLogger({ data }, this);
+}
+
+function withContext(this: Pino.Logger, data: object): Logger {
+  const bindings: any = (this as any).bindings();
+  const context = bindings.context;
 
   const mergedContext = {
     ...context,
     ...data
-  }
-  return makeLogger({ context: mergedContext}, this)
+  };
+  return makeLogger({ context: mergedContext }, this);
 }
 
-function withHttpResponse (
+function withHttpResponse(
   this: Pino.Logger,
-  { status, error, body, elapsedMs }:
-    { status: number, error: Error, body: any, elapsedMs: number }) {
-  const bindings: any = (this as any).bindings()
-  const req = bindings && bindings.data && bindings.data.http && bindings.data.http.req
+  {
+    status,
+    body,
+    elapsedMs
+  }: { status: number; error: Error; body: any; elapsedMs: number }
+): Logger {
+  const bindings: any = (this as any).bindings();
+  const req =
+    bindings && bindings.data && bindings.data.http && bindings.data.http.req;
 
-  return makeLogger({
-    data: {
-      http: {
-        req: {
-          id: req && req.id
-        },
-        resp: {
-          status,
-          body,
-          elapsedMs
+  return makeLogger(
+    {
+      data: {
+        http: {
+          req: {
+            id: req && req.id
+          },
+          resp: {
+            status,
+            body,
+            elapsedMs
+          }
         }
       }
-    }
-  }, this)
+    },
+    this
+  );
 }
 
-function withHttpRequest (this: Pino.Logger,
-  { url, method, body }: { url: string, method: string, body: any }) {
-  const requestId = uuid()
-  return makeLogger({
-    data: {
-      http: {
-        req: {
-          id: requestId,
-          url,
-          method,
-          body
+function withHttpRequest(
+  this: Pino.Logger,
+  { url, method, body }: { url: string; method: string; body: any }
+): Logger {
+  const requestId = uuid();
+  return makeLogger(
+    {
+      data: {
+        http: {
+          req: {
+            id: requestId,
+            url,
+            method,
+            body
+          }
         }
       }
-    }
-  }, this)
+    },
+    this
+  );
 }
 
-function makeErrorRecord (error: any, msg?: string) {
-  let errorObj: Error
+interface ErrorRecord {
+  msg: string;
+  error: {
+    message: string;
+    stack: string;
+    name: string;
+  };
+}
+
+function makeErrorRecord(error: any, msg?: string): ErrorRecord {
+  let errorObj: Error;
 
   if (error instanceof Error) {
-    errorObj = error
+    errorObj = error;
   } else {
     errorObj = {
       message: error.toString(),
       stack: undefined,
-      name: typeof (error)
-    }
+      name: typeof error
+    };
   }
 
   return {
@@ -93,110 +179,99 @@ function makeErrorRecord (error: any, msg?: string) {
       stack: errorObj.stack,
       name: errorObj.name
     }
-  }
+  };
 }
 
-function recordError (this: Pino.Logger, e: any, msg?: string) {
-  this.error(makeErrorRecord(e, msg))
+function recordError(this: Pino.Logger, e: any, msg?: string): void {
+  this.error(makeErrorRecord(e, msg));
 }
 
-function recordErrorAsWarning (this: Pino.Logger, e: any, msg?: string) {
-  this.warn(makeErrorRecord(e, msg))
+function recordErrorAsWarning(this: Pino.Logger, e: any, msg?: string): void {
+  this.warn(makeErrorRecord(e, msg));
 }
 
 export interface LoggerOptions {
-  stream?: Pino.DestinationStream,
-  level?: string
-  service?: string
+  stream?: Pino.DestinationStream;
+  level?: string;
+  service?: string;
 }
 
-function parentLogger (data: object, options?: LoggerOptions) {
-  const level = (options && options.level) || process.env.CAZOO_LOGGER_LEVEL || 'info'
-  if (options && options.stream) {
-    return Pino({
-      timestamp: false,
-      base: data,
-      useLevelLabels: true,
-      level
-    }, options.stream)
-  }
-
-  return Pino({
-    timestamp: false,
-    base: data,
-    useLevelLabels: true,
-    level
-  })
+interface LoggerContext {
+  request_id: string;
+  account_id: string;
+  function: {
+    name: string;
+    version: string;
+    service?: string;
+  };
+  [property: string]: any;
 }
 
-function makeLogger (data: object, parent?: Pino.Logger, options?: LoggerOptions): Logger {
-  let instance: Pino.Logger
-
-  if (parent === undefined) {
-    instance = parentLogger(data, options)
-  } else {
-    instance = parent.child(data)
-  }
-  Object.assign(instance, {
-    withData,
-    withContext,
-    withHttpRequest,
-    withHttpResponse,
-    recordErrorAsWarning,
-    recordError
-  })
-
-  return instance as Logger
-}
-
-function parseAccountId (arn: string): string {
+function parseAccountId(arn: string): string {
   if (!arn) {
-    return 'missing'
+    return "missing";
   }
-  const parts = arn.split(':')
+  const parts = arn.split(":");
   if (parts.length >= 5) {
-    return parts[4]
+    return parts[4];
   }
-  return `unknown (${arn})`
+  return `unknown (${arn})`;
 }
 
-const makeContext = (ctx, options, extra) => {
+const makeContext = (
+  ctx: Context,
+  options: LoggerOptions,
+  extra: any
+): LoggerContext => {
   return {
     request_id: ctx.awsRequestId,
     account_id: parseAccountId(ctx.invokedFunctionArn),
     function: {
       name: ctx.functionName,
       version: ctx.functionVersion,
-      service: (options && options.service) || process.env.CAZOO_LOGGER_SERVICE || ctx.logStreamName
+      service:
+        (options && options.service) ||
+        process.env.CAZOO_LOGGER_SERVICE ||
+        ctx.logStreamName
     },
     ...extra
-  }
-}
+  };
+};
 
-function has (obj, ...props) {
+function has(obj: any, ...props: string[]): boolean {
   for (const p of props) {
-    if (!obj.hasOwnProperty(p)) { return false }
+    if (!obj.hasOwnProperty(p)) {
+      return false;
+    }
   }
-  return true
+  return true;
 }
 
-export function forDomainEvent (event: ScheduledEvent, context:Context, options?: LoggerOptions) : Logger | null {
-  if (!has(event, 'detail', 'detail-type', 'source', 'id')) {
-    return null
+export function forDomainEvent(
+  event: ScheduledEvent,
+  context: Context,
+  options?: LoggerOptions
+): Logger | null {
+  if (!has(event, "detail", "detail-type", "source", "id")) {
+    return null;
   }
   const ctx = makeContext(context, options, {
     event: {
       source: event.source,
-      type: event['detail-type'],
+      type: event["detail-type"],
       id: event.id
     }
-  })
-  return makeLogger({ context: ctx }, undefined, options)
+  });
+  return makeLogger({ context: ctx }, undefined, options);
 }
 
-export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Context, options?: LoggerOptions) : Logger | null {
-  if (!has(event, 'requestContext')) {
-    return null
+export function forAPIGatewayEvent(
+  event: APIGatewayProxyEvent,
+  context: Context,
+  options?: LoggerOptions
+): Logger | null {
+  if (!has(event, "requestContext")) {
+    return null;
   }
   const ctx = makeContext(context, options, {
     http: {
@@ -207,26 +282,36 @@ export function forAPIGatewayEvent (event: APIGatewayProxyEvent, context: Contex
       routeKey: event.requestContext.routeKey,
       query: event.multiValueQueryStringParameters
     }
-  })
-  return makeLogger({ context: ctx }, undefined, options)
+  });
+  return makeLogger({ context: ctx }, undefined, options);
 }
 
-export function forSQSRecord (record: SQSRecord, context:Context, options?: LoggerOptions) : Logger | null {
-  if (!has(record, 'eventSourceARN', 'messageId')) { return null }
+export function forSQSRecord(
+  record: SQSRecord,
+  context: Context,
+  options?: LoggerOptions
+): Logger | null {
+  if (!has(record, "eventSourceARN", "messageId")) {
+    return null;
+  }
   const ctx = makeContext(context, options, {
     sqs: {
       source: record.eventSourceARN,
       id: record.messageId
     }
-  })
-  return makeLogger({ context: ctx }, undefined, options)
+  });
+  return makeLogger({ context: ctx }, undefined, options);
 }
 
-export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: Context, options?: LoggerOptions): Logger | null {
+export function forCloudFrontRequest(
+  request: CloudFrontRequestEvent,
+  context: Context,
+  options?: LoggerOptions
+): Logger | null {
   if (!Array.isArray(request.Records) || request.Records[0].cf === undefined) {
-    return null
+    return null;
   }
-  const cf = request.Records[0].cf
+  const cf = request.Records[0].cf;
   const ctx = makeContext(context, options, {
     cf: {
       path: cf.request.uri,
@@ -235,35 +320,45 @@ export function forCloudFrontRequest (request: CloudFrontRequestEvent, context: 
       type: cf.config.eventType,
       id: cf.config.requestId
     }
-  })
-  return makeLogger({ context: ctx }, undefined, options)
+  });
+  return makeLogger({ context: ctx }, undefined, options);
 }
 
-export function forSNS (event: SNSEvent, context:Context, options?: LoggerOptions) : Logger | null {
-  const record = event.Records[0]
-  if (record.EventSource !== 'aws:sns') { return null }
+export function forSNS(
+  event: SNSEvent,
+  context: Context,
+  options?: LoggerOptions
+): Logger | null {
+  const record = event.Records[0];
+  if (record.EventSource !== "aws:sns") {
+    return null;
+  }
 
   const ctx = makeContext(context, options, {
     event: {
       id: record.Sns.MessageId,
       source: record.Sns.TopicArn
     }
-  })
-  if (record.Sns.Subject === 'Amazon S3 Notification') {
-    const msg = JSON.parse(record.Sns.Message)
-    const s3 = msg.Records[0].s3
+  });
+  if (record.Sns.Subject === "Amazon S3 Notification") {
+    const msg = JSON.parse(record.Sns.Message);
+    const s3 = msg.Records[0].s3;
     ctx.s3 = {
       bucket: s3.bucket.name,
       key: s3.object.key
-    }
+    };
   }
-  return makeLogger({ context: ctx }, undefined, options)
+  return makeLogger({ context: ctx }, undefined, options);
 }
 
-export function forDynamoDBStream (event: DynamoDBStreamEvent, context: Context, options?: LoggerOptions): Logger | null {
-  const record = event.Records[0]
-  if (record.eventSource !== 'aws:dynamodb') {
-    return null
+export function forDynamoDBStream(
+  event: DynamoDBStreamEvent,
+  context: Context,
+  options?: LoggerOptions
+): Logger | null {
+  const record = event.Records[0];
+  if (record.eventSource !== "aws:dynamodb") {
+    return null;
   }
 
   const ctx = makeContext(context, options, {
@@ -272,34 +367,36 @@ export function forDynamoDBStream (event: DynamoDBStreamEvent, context: Context,
       source: record.eventSourceARN,
       type: record.eventName
     }
-  })
+  });
 
-  return makeLogger({ context: ctx }, undefined, options)
+  return makeLogger({ context: ctx }, undefined, options);
 }
 
-export function empty (options?: LoggerOptions) {
-  return makeLogger({}, undefined, options)
+export function empty(options?: LoggerOptions): Logger {
+  return makeLogger({}, undefined, options);
 }
 
-export function fromContext (event, context, options) {
+export function fromContext(event, context, options): Logger {
   try {
-    return forDomainEvent(event, context, options) ||
-        forAPIGatewayEvent(event, context, options) ||
-        forSNS(event, context, options) ||
-          forSQSRecord(event, context, options) ||
-          forCloudFrontRequest(event, context, options) ||
-          forDynamoDBStream(event, context, options) ||
-          empty()
+    return (
+      forDomainEvent(event, context, options) ||
+      forAPIGatewayEvent(event, context, options) ||
+      forSNS(event, context, options) ||
+      forSQSRecord(event, context, options) ||
+      forCloudFrontRequest(event, context, options) ||
+      forDynamoDBStream(event, context, options) ||
+      empty()
+    );
   } catch (e) {
-    const log = empty()
-    log.recordError(e)
-    return e
+    const log = empty();
+    log.recordError(e);
+    return e;
   }
 }
 
 export interface ErrorRecorder {
-  recordError(e: any, msg?: string): void
-  recordErrorAsWarning(e: any, msg?: string): void
+  recordError(e: any, msg?: string): void;
+  recordErrorAsWarning(e: any, msg?: string): void;
 }
 
-export type Logger = Pino.Logger & Contexts & ErrorRecorder
+export type Logger = Pino.Logger & Contexts & ErrorRecorder;

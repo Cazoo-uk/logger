@@ -5,10 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "standard | snazzy && cross-env NODE_OPTIONS=\"--no-warnings -r qodaa\" tap -j 4 --no-cov test/*test.ts",
+    "test": "yarn lint && cross-env NODE_OPTIONS=\"--no-warnings -r qodaa\" tap -j 4 --no-cov test/*test.ts",
     "watch": "tap --watch -j 4 test/*test.ts",
-    "lint": "standard --parser @typescript-eslint/parser --plugin typescript **/*.ts | snazzy",
-    "fix": "standard --parser @typescript-eslint/parser --plugin typescript **/*.ts --fix | snazzy",
+    "lint": "yarn eslint '**/*.ts'",
+    "fix": "yarn eslint '**/*.ts' --fix",
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc",
     "preversion": "npm test && npm run build",
@@ -20,30 +20,25 @@
     "@types/aws-lambda": "^8.10.27",
     "@types/node": "^12.0.8",
     "@types/uuid": "^3.4.4",
-    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/eslint-plugin": "^2.6.0",
     "@typescript-eslint/parser": "^1.10.2",
     "aws-lambda": "^0.1.2",
     "cross-env": "^5.2.0",
-    "eslint-plugin-typescript": "^0.14.0",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.1",
     "flush-write-stream": "^2.0.0",
+    "prettier": "^1.18.2",
     "qodaa": "^1.0.1",
-    "snazzy": "^8.0.0",
     "split2": "^3.1.1",
-    "standard": "^12.0.1",
     "tap": "^14.2.3",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.3"
   },
   "dependencies": {
     "@types/pino": "^5.8.8",
     "pino": "^5.12.6",
     "pino-pretty": "^3.2.0",
     "uuid": "^3.3.2"
-  },
-  "standard": {
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint/eslint-plugin"
-    ]
   },
   "publishConfig": {
     "@cazoo:registry": "https://gitlab.com/api/v4/projects/12953833/packages/npm/"
