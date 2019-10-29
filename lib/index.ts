@@ -1,13 +1,13 @@
 import uuid from "uuid/v4";
 
 import {
-  Context,
   APIGatewayProxyEvent,
-  ScheduledEvent,
-  SQSRecord,
-  SNSEvent,
   CloudFrontRequestEvent,
-  DynamoDBStreamEvent
+  Context,
+  DynamoDBStreamEvent,
+  ScheduledEvent,
+  SNSEvent,
+  SQSRecord
 } from "aws-lambda";
 
 import Pino from "pino";
@@ -376,21 +376,33 @@ export function empty(options?: LoggerOptions): Logger {
   return makeLogger({}, undefined, options);
 }
 
-export function fromContext(event, context, options): Logger {
+type AnyEvent =
+  | APIGatewayProxyEvent
+  | CloudFrontRequestEvent
+  | DynamoDBStreamEvent
+  | ScheduledEvent
+  | SNSEvent
+  | SQSRecord;
+
+export function fromContext(
+  event: AnyEvent,
+  context: Context,
+  options: LoggerOptions
+): Logger {
   try {
     return (
-      forDomainEvent(event, context, options) ||
-      forAPIGatewayEvent(event, context, options) ||
-      forSNS(event, context, options) ||
-      forSQSRecord(event, context, options) ||
-      forCloudFrontRequest(event, context, options) ||
-      forDynamoDBStream(event, context, options) ||
+      forDomainEvent(event as ScheduledEvent, context, options) ||
+      forAPIGatewayEvent(event as APIGatewayProxyEvent, context, options) ||
+      forSNS(event as SNSEvent, context, options) ||
+      forSQSRecord(event as SQSRecord, context, options) ||
+      forCloudFrontRequest(event as CloudFrontRequestEvent, context, options) ||
+      forDynamoDBStream(event as DynamoDBStreamEvent, context, options) ||
       empty()
     );
-  } catch (e) {
-    const log = empty();
-    log.recordError(e);
-    return e;
+  } catch (error) {
+    const logger = empty();
+    logger.recordError(error);
+    return logger;
   }
 }
 
