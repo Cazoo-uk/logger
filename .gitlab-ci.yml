@@ -1,13 +1,13 @@
 image: node:10
 
 before_script:
-  - npm install
+  - yarn
 
 test:node:10:
   stage: test
   image: node:10
   script:
-    - npm test
+    - yarn test
 
 publish:
   stage: deploy
@@ -15,6 +15,6 @@ publish:
     - tags
     - triggers
   script:
-    - npm run build
+    - yarn build
     - echo '//registry.npmjs.org/:_authToken=${CAZOO_NPM_TOKEN}'>.npmrc
-    - npm publish
+    - yarn publish

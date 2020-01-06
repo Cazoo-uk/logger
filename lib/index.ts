@@ -52,7 +52,8 @@ function parentLogger(data: object, options?: LoggerOptions): Pino.Logger {
     timestamp: false,
     base: data,
     useLevelLabels: true,
-    level
+    level,
+    redact: options && options.redact
   });
 }
 
@@ -194,6 +195,7 @@ export interface LoggerOptions {
   stream?: Pino.DestinationStream;
   level?: string;
   service?: string;
+  redact?: string[] | Pino.redactOptions;
 }
 
 interface LoggerContext {
