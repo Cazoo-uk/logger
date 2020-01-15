@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { test } from 'tap'
 import * as logger from '../lib'
 import { sink, once } from './helper'
 import { event, context } from './data/cloudwatch'
 
-test('When logging in a cloudwatch event context', async ({ same }) => {
+it('When logging in a cloudwatch event context', async () => {
   const stream = sink()
 
   const log = logger.fromContext(event, context, { stream })
@@ -12,7 +11,7 @@ test('When logging in a cloudwatch event context', async ({ same }) => {
 
   const result = await once(stream, 'data')
 
-  same(result, {
+  expect(result).toStrictEqual({
     level: 'info',
     v: 1,
     context: {
@@ -33,9 +32,7 @@ test('When logging in a cloudwatch event context', async ({ same }) => {
   })
 })
 
-test('When using withContext to provide additional context information', async ({
-  same,
-}) => {
+it('When using withContext to provide additional context information', async () => {
   const vrm = 'ABCDEF'
   const usefulField = 123
   const stream = sink()
@@ -65,32 +62,26 @@ test('When using withContext to provide additional context information', async (
   log.warn('Warn message')
 
   // ASSERT
-  same(results.length, 2)
+  expect(results.length).toBe(2)
 
-  same(
-    {
-      message: 'Hello world',
-      context: {
-        vrm,
-        usefulField,
-      },
+  expect(results[0]).toStrictEqual({
+    message: 'Hello world',
+    context: {
+      vrm,
+      usefulField,
     },
-    results[0]
-  )
+  })
 
-  same(
-    {
-      message: 'Warn message',
-      context: {
-        vrm,
-        usefulField,
-      },
+  expect(results[1]).toStrictEqual({
+    message: 'Warn message',
+    context: {
+      vrm,
+      usefulField,
     },
-    results[1]
-  )
+  })
 })
 
-test('When specifying a service name', async ({ same }) => {
+it('When specifying a service name', async () => {
   const stream = sink()
   const service = 'my service is the best service'
 
@@ -99,7 +90,7 @@ test('When specifying a service name', async ({ same }) => {
 
   const result = await once(stream, 'data')
 
-  same(result, {
+  expect(result).toStrictEqual({
     level: 'info',
     v: 1,
     context: {
@@ -120,7 +111,7 @@ test('When specifying a service name', async ({ same }) => {
   })
 })
 
-test('When specifying the service as an env var', async ({ match }) => {
+it('When specifying the service as an env var', async () => {
   const stream = sink()
   const service = 'my service is the best service'
   process.env.CAZOO_LOGGER_SERVICE = service
@@ -130,7 +121,7 @@ test('When specifying the service as an env var', async ({ match }) => {
 
   const result = await once(stream, 'data')
 
-  match(result, {
+  expect(result).toMatchObject({
     context: {
       function: {
         service,

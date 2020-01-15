@@ -1,9 +1,8 @@
-import { test } from 'tap'
 import * as logger from '../lib'
 import { sink } from './helper'
 import { event, websocketEvent, context } from './data/awsgateway'
 
-test('When logging in an API Gateway event context', async ({ same }) => {
+it('When logging in an API Gateway event context', () => {
   const stream = sink()
 
   const log = logger.fromContext(event, context, { stream })
@@ -11,7 +10,7 @@ test('When logging in an API Gateway event context', async ({ same }) => {
 
   const result = stream.read()
 
-  same(result, {
+  expect(result).toEqual({
     level: 'info',
     v: 1,
     context: {
@@ -38,9 +37,7 @@ test('When logging in an API Gateway event context', async ({ same }) => {
   })
 })
 
-test('When using withContext to provide additional context information', async ({
-  same,
-}) => {
+it('When using withContext to provide additional context information', () => {
   const vrm = 'ABCDEF'
   const usefulField = 123
   const stream = sink()
@@ -70,35 +67,26 @@ test('When using withContext to provide additional context information', async (
   log.warn('Warn message')
 
   // ASSERT
-  same(results.length, 2)
+  expect(results.length).toBe(2)
 
-  same(
-    {
-      message: 'Hello world',
-      context: {
-        vrm,
-        usefulField,
-      },
+  expect(results[0]).toEqual({
+    message: 'Hello world',
+    context: {
+      vrm,
+      usefulField,
     },
-    results[0]
-  )
+  })
 
-  console.log(results[1])
-  console.log(vrm)
-  console.log(usefulField)
-  same(
-    {
-      message: 'Warn message',
-      context: {
-        vrm,
-        usefulField,
-      },
+  expect(results[1]).toEqual({
+    message: 'Warn message',
+    context: {
+      vrm,
+      usefulField,
     },
-    results[1]
-  )
+  })
 })
 
-test('When logging a websocket request', async ({ match }) => {
+it('When logging a websocket request', () => {
   const stream = sink()
 
   const log = logger.fromContext(websocketEvent, context, { stream })
@@ -106,7 +94,7 @@ test('When logging a websocket request', async ({ match }) => {
 
   const result = stream.read()
 
-  match(result, {
+  expect(result).toMatchObject({
     level: 'info',
     v: 1,
     context: {
@@ -129,9 +117,7 @@ test('When logging a websocket request', async ({ match }) => {
   })
 })
 
-test('When using withContext to provide additional context information', async ({
-  same,
-}) => {
+it('When using withContext to provide additional context information', () => {
   const vrm = 'ABCDEF'
   const usefulField = 123
   const stream = sink()
@@ -161,27 +147,21 @@ test('When using withContext to provide additional context information', async (
   log.warn('Warn message')
 
   // ASSERT
-  same(results.length, 2)
+  expect(results.length).toBe(2)
 
-  same(
-    {
-      message: 'Hello world',
-      context: {
-        vrm,
-        usefulField,
-      },
+  expect(results[0]).toEqual({
+    message: 'Hello world',
+    context: {
+      vrm,
+      usefulField,
     },
-    results[0]
-  )
+  })
 
-  same(
-    {
-      message: 'Warn message',
-      context: {
-        vrm,
-        usefulField,
-      },
+  expect(results[1]).toEqual({
+    message: 'Warn message',
+    context: {
+      vrm,
+      usefulField,
     },
-    results[1]
-  )
+  })
 })

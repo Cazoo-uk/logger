@@ -1,9 +1,8 @@
-import { test } from 'tap'
 import * as logger from '../lib'
 import { sink } from './helper'
 import { event, context } from './data/httpRequest'
 
-test('When recording an outbound HTTP request', async ({ match, is }) => {
+it('When recording an outbound HTTP request', () => {
   const stream = sink()
 
   let log = logger.forDomainEvent(event, context, { stream, level: 'debug' })
@@ -17,7 +16,7 @@ test('When recording an outbound HTTP request', async ({ match, is }) => {
   log.withHttpResponse({ status: 200 }).info('Got stuff')
   const response = stream.read()
 
-  match(request.data, {
+  expect(request.data).toMatchObject({
     http: {
       req: {
         url: 'http://google.com',
@@ -26,7 +25,7 @@ test('When recording an outbound HTTP request', async ({ match, is }) => {
     },
   })
 
-  match(response.data, {
+  expect(response.data).toMatchObject({
     http: {
       resp: {
         status: 200,
@@ -34,5 +33,5 @@ test('When recording an outbound HTTP request', async ({ match, is }) => {
     },
   })
 
-  is(request.data.http.req.id, response.data.http.req.id)
+  expect(request.data.http.req.id).toBe(response.data.http.req.id)
 })
