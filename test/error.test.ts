@@ -79,3 +79,24 @@ test('When some numpty throws a string as error', async ({ match }) => {
     },
   })
 })
+
+test('When some numpty throws an object as error', async ({ match }) => {
+  const stream = sink()
+  const log = logger.empty({ stream })
+
+  try {
+    throw { someProp: 'someVal', someProp2: 'someVal2' }
+  } catch (s) {
+    log.recordError(s)
+  }
+
+  const request = stream.read()
+  match(request, {
+    msg: '{"someProp":"someVal","someProp2":"someVal2"}',
+    level: 'error',
+    error: {
+      message: '{"someProp":"someVal","someProp2":"someVal2"}',
+      name: 'object',
+    },
+  })
+})

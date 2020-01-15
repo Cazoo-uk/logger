@@ -167,7 +167,7 @@ function makeErrorRecord(error: any, msg?: string): ErrorRecord {
     errorObj = error
   } else {
     errorObj = {
-      message: error.toString(),
+      message: JSON.stringify(error),
       stack: undefined,
       name: typeof error,
     }
