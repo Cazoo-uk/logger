@@ -1,0 +1,16 @@
+{
+  "defaultSeverity": "error",
+    "linterOptions": {
+        "exclude": ["src/*.test.ts"]
+    },
+  "extends": [
+      "tslint:recommended",
+      "tslint-config-prettier"
+  ],
+  "rules": {
+    "arrow-parens": false,
+    "curly": [true, "ignore-same-line"],
+    "max-line-length": false,
+    "quotemark": [true, "single", "avoid-escape", "avoid-template"]
+  }
+}
