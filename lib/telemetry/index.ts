@@ -131,13 +131,13 @@ class StdOutTelemetryLogger implements TelemetryLogger {
   private tracer: Tracer
   private context: Attributes
 
-  public constructor(exporter?: SpanExporter) {
+  public constructor(options: TelemetryOptions) {
     const config = {
       scopeManager: new AsyncHooksScopeManager(),
     }
 
     const tracer = new BasicTracer(config)
-    exporter = exporter || new StdOutExporter()
+    const exporter = (options && options.exporter) || new StdOutExporter()
     tracer.addSpanProcessor(new SimpleSpanProcessor(exporter))
     this.tracer = tracer
     this.spans = []
@@ -188,6 +188,7 @@ function getContext(
   context: Context,
   options: TelemetryOptions
 ): unknown {
+  if (!event) return
   if (isSNS(event as SNSEvent)) {
     return makeSNSContext(context, options, event as SNSEvent)
   } else if (isSQSRecord(event as SQSRecord)) {
@@ -223,13 +224,13 @@ export class Telemetry {
     context: Context,
     options: TelemetryOptions
   ): TelemetryLogger {
-    return new StdOutTelemetryLogger(options.exporter).appendContext(
+    return new StdOutTelemetryLogger(options).appendContext(
       getContext(event, context, options)
     )
   }
 
   static new(options: TelemetryOptions): TelemetryLogger {
-    return new StdOutTelemetryLogger(options.exporter)
+    return new StdOutTelemetryLogger(options)
   }
 }
 

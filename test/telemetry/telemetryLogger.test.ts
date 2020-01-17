@@ -252,3 +252,12 @@ describe('Cazoo Logger', () => {
     })
   })
 })
+
+it("doesn't blow up if given all undefineds", () => {
+  const tracer = Telemetry.fromContext(undefined, undefined, undefined)
+  expect(tracer).toBeDefined()
+
+  tracer.for('do a thing', () => {
+    expect('this code should be hit').toBeDefined()
+  })
+})
