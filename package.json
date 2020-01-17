@@ -1,6 +1,6 @@
 {
   "name": "cazoo-logger",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Codified standards for structured logging",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -48,5 +48,7 @@
   "publishConfig": {
     "@cazoo:registry": "https://gitlab.com/api/v4/projects/12953833/packages/npm/"
   },
-  "files": [ "dist/*" ]
+  "files": [
+    "dist/*"
+  ]
 }
