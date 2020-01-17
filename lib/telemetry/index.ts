@@ -220,9 +220,9 @@ export interface TelemetryOptions extends LoggerOptions {
 
 export class Telemetry {
   public static fromContext(
-    event: AnyEvent,
-    context: Context,
-    options: TelemetryOptions
+    event?: AnyEvent,
+    context?: Context,
+    options?: TelemetryOptions
   ): TelemetryLogger {
     return new StdOutTelemetryLogger(options).appendContext(
       getContext(event, context, options)

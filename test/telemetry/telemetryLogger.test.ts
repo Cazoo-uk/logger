@@ -254,7 +254,7 @@ describe('Cazoo Logger', () => {
 })
 
 it("doesn't blow up if given all undefineds", () => {
-  const tracer = Telemetry.fromContext(undefined, undefined, undefined)
+  const tracer = Telemetry.fromContext()
   expect(tracer).toBeDefined()
 
   tracer.for('do a thing', () => {
