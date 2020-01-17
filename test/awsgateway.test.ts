@@ -10,7 +10,7 @@ it('When logging in an API Gateway event context', () => {
 
   const result = stream.read()
 
-  expect(result).toEqual({
+  expect(result).toStrictEqual({
     level: 'info',
     v: 1,
     context: {
