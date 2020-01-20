@@ -119,6 +119,7 @@ export class StdOutExporter implements SpanExporter {
   ): void {
     for (const span of spans) {
       this.out.write(this.writable(span))
+      this.out.write('\n')
     }
     if (done) {
       return done(ExportResult.SUCCESS)
