@@ -5,11 +5,11 @@ import { TestableTelemetry } from './testTelemetry'
 import { Telemetry, TelemetryLogger } from '../../lib/telemetry'
 
 describe('Cazoo Logger', () => {
-  let results: ReadableSpan[]
+  let spans: ReadableSpan[]
   let tracing: TelemetryLogger
 
   function spanWithName(name: string): ReadableSpan {
-    return results.find(y => y.name === name)
+    return spans.find(y => y.name === name)
   }
 
   function getEventWithName(name: string, span: ReadableSpan): TimedEvent {
@@ -17,12 +17,12 @@ describe('Cazoo Logger', () => {
   }
 
   function findSpanWithEventMatchingName(eventName: string): ReadableSpan {
-    return results.find(x => getEventWithName(eventName, x))
+    return spans.find(x => getEventWithName(eventName, x))
   }
 
   beforeEach(() => {
-    const { exporter, spans } = new TestableTelemetry()
-    results = spans
+    const { exporter, spans: exportedSpans } = new TestableTelemetry()
+    spans = exportedSpans
     tracing = Telemetry.new({ exporter })
   })
 
@@ -31,9 +31,9 @@ describe('Cazoo Logger', () => {
       tracing.addInfo('some info')
     })
 
-    expect(results.length).toBe(1)
-    expect(results[0].events[0].name).toBe('some info')
-    expect(results[0].events[0].attributes).toBeUndefined()
+    expect(spans.length).toBe(1)
+    expect(spans[0].events[0].name).toBe('some info')
+    expect(spans[0].events[0].attributes).toBeUndefined()
   })
 
   describe('when adding multiple infos to the same trace', () => {
@@ -46,7 +46,7 @@ describe('Cazoo Logger', () => {
     })
 
     it('should export 1 span', () => {
-      expect(results.length).toBe(1)
+      expect(spans.length).toBe(1)
     })
 
     it('should add all info to events', () => {
@@ -93,7 +93,7 @@ describe('Cazoo Logger', () => {
     })
 
     it('should export 4 spans', () => {
-      expect(results.length).toBe(4)
+      expect(spans.length).toBe(4)
     })
 
     it('should log the root trace', () => {
@@ -142,11 +142,11 @@ describe('Cazoo Logger', () => {
     })
 
     it('should export the span', () => {
-      expect(results.length).toBe(1)
+      expect(spans.length).toBe(1)
     })
 
     it('should add the error as an event named "error"', () => {
-      const event = results[0].events[0]
+      const event = spans[0].events[0]
       expect(event.name).toBe('error')
       expect(event.attributes).toStrictEqual(error)
     })
@@ -175,11 +175,11 @@ describe('Cazoo Logger', () => {
     })
 
     it('should export the span', () => {
-      expect(results.length).toBe(6)
+      expect(spans.length).toBe(6)
     })
 
     it('should add the error as info', () => {
-      const span = results[0]
+      const span = spans[0]
       const event = span.events[0]
       expect(span.name).toBe('throws error')
       expect(event.name).toBe('error')
@@ -201,11 +201,11 @@ describe('Cazoo Logger', () => {
     })
 
     it('should export the span', () => {
-      expect(results.length).toBe(1)
+      expect(spans.length).toBe(1)
     })
 
     it('should include the all the arbitrary data', () => {
-      const eventData = results[0].events[0].attributes
+      const eventData = spans[0].events[0].attributes
       expect(eventData).toStrictEqual(dataAboutThingThatHappened)
     })
   })
@@ -236,7 +236,7 @@ describe('Cazoo Logger', () => {
     })
 
     it('should track both traces', () => {
-      expect(results.length).toBe(2)
+      expect(spans.length).toBe(2)
     })
 
     it('should have the original context on the root trace', () => {
@@ -250,6 +250,20 @@ describe('Cazoo Logger', () => {
         context: { ...oldcontext, ...newContext },
       })
     })
+  })
+
+  it('should add info to the correct trace', () => {
+    const traceThatShouldHaveInfo = 'trace with info'
+    const info = 'some info'
+
+    tracing.for('root', () => {
+      tracing.for(traceThatShouldHaveInfo, () => {
+        tracing.addInfo(info)
+      })
+    })
+
+    const traceThatDoesHaveInfo = findSpanWithEventMatchingName(info).name
+    expect(traceThatDoesHaveInfo).toBe(traceThatShouldHaveInfo)
   })
 })
 
