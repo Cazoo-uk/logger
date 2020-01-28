@@ -379,45 +379,45 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
-"@opentelemetry/base@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/base/-/base-0.3.2.tgz#e748bdc2277cfff07c9e7b35926c011dca5f7f86"
-  integrity sha512-lKTECj0abEJm0mQjVFDXPy5n0Bps9r+o5muESoln0k90wxEQfxYTAEH9ZZUQWN4eDddc2clF/m/ZL0VAAihVXA==
+"@opentelemetry/base@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/base/-/base-0.3.3.tgz#a2e3508a9c7e068033ee2e7448f18732c1ecbcb7"
+  integrity sha512-NKsQLDxHeLSXYs819XSkCsrPprqxILeKbWY7pIC2e4bp1gwtGNDqfY3lnVZxxoPYaAn0fi3WMymNdsBl7F7DRA==
 
-"@opentelemetry/core@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-0.3.2.tgz#958a111ace6e405c4d4607e846082c3c849f45eb"
-  integrity sha512-HXY4BTkBR4ss9kdPwca1Dpb3KOizuGoSrXHfqdGdS1h6mzGd7zpia7z89w7yRhj4tZiHQcl9rcw/V+qdroCGkg==
+"@opentelemetry/core@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-0.3.3.tgz#a8e9fd5beaa14a66e89305383e7f4e81557e1d8b"
+  integrity sha512-cG+Q0y59HMZaKisUBge8nsk0OavmVXoOeiSjBbSNzvcbFF94y85dsXNYKI3UfNeQjWy5OAE6U3m9PBqbmK5aGw==
   dependencies:
-    "@opentelemetry/types" "^0.3.2"
+    "@opentelemetry/types" "^0.3.3"
     semver "^6.3.0"
 
-"@opentelemetry/scope-async-hooks@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/scope-async-hooks/-/scope-async-hooks-0.3.2.tgz#47fa0bcab7cff07606a03fed83a83d78304f1373"
-  integrity sha512-jCTbKWOuyzcXyRhTqrKdDN3hfCHQrA5ppSUHZ/pcAcuIJcQX5oK6OwrFW4iR0pcVaIzJ6dRtwhiLUDiCe4uChA==
+"@opentelemetry/scope-async-hooks@0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/scope-async-hooks/-/scope-async-hooks-0.3.3.tgz#ac85e26b847cdab578704b756dc1c3b3a7c5e807"
+  integrity sha512-yNMKooMcVch0lhbol0NJn719U75Kwvzw2UukXrzqIBVM+MeYwv12xjT+JuCaLogGv0vrHu4/F1rZCzx6XpoAhg==
   dependencies:
-    "@opentelemetry/scope-base" "^0.3.2"
+    "@opentelemetry/scope-base" "^0.3.3"
 
-"@opentelemetry/scope-base@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/scope-base/-/scope-base-0.3.2.tgz#af85a7e6026eaf9277ccdd829797372a5fe58397"
-  integrity sha512-fwg5GNo9Mk5eIIfWXDyCBzMIhtyJ/jOB7wGq9+k8xC0YKqrny2TsWoRHtgTvAqtbHgN8Y/KXNVeI2Gys1Wibvg==
+"@opentelemetry/scope-base@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/scope-base/-/scope-base-0.3.3.tgz#25eaba4faba8589be4b9adb6db06e38a95f9cacf"
+  integrity sha512-hvBGfNDAUlCQYH5IQXnA0D6wyx4M3w3d+ikg9MOHj7B5QvPjzLAUqkewp6Am3jTQvzD5/1mDd0NFPeFQal9ECA==
 
-"@opentelemetry/tracing@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/tracing/-/tracing-0.3.2.tgz#279e6e9652db854a60aa42251459abaeafcf33ef"
-  integrity sha512-yKPb9K52LJX1xRySASMoXKiFVn3kQFXAYkf9yrdGqtiHg7DJ25ec7/mA4EWuyfYpOJwNYNzjdBYlCB6RHM01CQ==
+"@opentelemetry/tracing@0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/tracing/-/tracing-0.3.3.tgz#620e0c62b28a9aebbdedeff8eb6e6869f3600290"
+  integrity sha512-FQfSvuFFG0n3aInJfATUdXhKPiDQFbfWFSazDVMzRygOy5PuWn0jNsGk5O/tzPirPGMkCbMKvmrTzBv4GYbKzQ==
   dependencies:
-    "@opentelemetry/base" "^0.3.2"
-    "@opentelemetry/core" "^0.3.2"
-    "@opentelemetry/scope-base" "^0.3.2"
-    "@opentelemetry/types" "^0.3.2"
+    "@opentelemetry/base" "^0.3.3"
+    "@opentelemetry/core" "^0.3.3"
+    "@opentelemetry/scope-base" "^0.3.3"
+    "@opentelemetry/types" "^0.3.3"
 
-"@opentelemetry/types@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/types/-/types-0.3.2.tgz#9162551ab1f22467538374f80c9068b1b20b049d"
-  integrity sha512-CR8WNXmcYdnqTALgwG+dOZRBol8ul8HdB4VElpJKZHtcT+65wD542xKARy5oRoQs3bLMLoZtsDHpXrUdi6M83w==
+"@opentelemetry/types@0.3.3", "@opentelemetry/types@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/types/-/types-0.3.3.tgz#e0f241e8ebaffa95c34a1036029db5af608ea63b"
+  integrity sha512-TjYBL/7Lsh6n6z5YMLzpb4XZTJ4XATE9pX8rA0uDb+tya7U0NzpZHRoOYkS1eKaZAyZ07+gu85AooS77MvEP4w==
 
 "@types/aws-lambda@^8.10.27":
   version "8.10.34"

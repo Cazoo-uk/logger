@@ -8,7 +8,7 @@ import {
 } from 'aws-lambda'
 import {
   SpanExporter,
-  BasicTracer,
+  BasicTracerRegistry,
   SimpleSpanProcessor,
   ReadableSpan,
 } from '@opentelemetry/tracing'
@@ -137,10 +137,11 @@ class StdOutTelemetryLogger implements TelemetryLogger {
       scopeManager: new AsyncHooksScopeManager(),
     }
 
-    const tracer = new BasicTracer(config)
+    const registry = new BasicTracerRegistry()
     const exporter = (options && options.exporter) || new StdOutExporter()
-    tracer.addSpanProcessor(new SimpleSpanProcessor(exporter))
-    this.tracer = tracer
+    registry.addSpanProcessor(new SimpleSpanProcessor(exporter))
+    this.tracer = registry.getTracer('cazoo', undefined, config)
+
     this.spans = []
   }
 
