@@ -224,7 +224,7 @@ export function fromContext(
       forSQSRecord(event as SQSRecord, context, options) ||
       forCloudFrontRequest(event as CloudFrontRequestEvent, context, options) ||
       forDynamoDBStream(event as DynamoDBStreamEvent, context, options) ||
-      empty()
+      empty(options)
     )
   } catch (error) {
     const logger = empty()
