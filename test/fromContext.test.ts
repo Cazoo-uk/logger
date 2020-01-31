@@ -29,4 +29,10 @@ describe('[fromContext]', () => {
     const actual = stream.read()
     expect(actual).toMatchObject(expected)
   })
+
+  it('works with an undefined config', () => {
+    const log = logger.fromContext({} as AnyEvent, {} as Context)
+    log.withData({ a: 'b' }).debug('test')
+    expect(log).toBeDefined()
+  })
 })

@@ -4,7 +4,7 @@ import uuid = require('uuid')
 import { TestableTelemetry } from './testTelemetry'
 import { Telemetry, TelemetryLogger } from '../../lib/telemetry'
 
-describe('Cazoo Logger', () => {
+describe('Cazoo Telemetry', () => {
   let spans: ReadableSpan[]
   let tracing: TelemetryLogger
 
@@ -264,14 +264,5 @@ describe('Cazoo Logger', () => {
 
     const traceThatDoesHaveInfo = findSpanWithEventMatchingName(info).name
     expect(traceThatDoesHaveInfo).toBe(traceThatShouldHaveInfo)
-  })
-})
-
-it("doesn't blow up if given all undefineds", () => {
-  const tracer = Telemetry.fromContext()
-  expect(tracer).toBeDefined()
-
-  tracer.for('do a thing', () => {
-    expect('this code should be hit').toBeDefined()
   })
 })

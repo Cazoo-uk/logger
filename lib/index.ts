@@ -214,7 +214,7 @@ export function empty(options?: LoggerOptions): Logger {
 export function fromContext(
   event: AnyEvent,
   context: Context,
-  options: LoggerOptions
+  options?: LoggerOptions
 ): Logger {
   try {
     return (

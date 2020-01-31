@@ -132,7 +132,7 @@ class StdOutTelemetryLogger implements TelemetryLogger {
   private tracer: Tracer
   private context: Attributes
 
-  public constructor(options: TelemetryOptions) {
+  public constructor(options?: TelemetryOptions) {
     const config = {
       scopeManager: new AsyncHooksScopeManager(),
     }
@@ -231,7 +231,7 @@ export class Telemetry {
     )
   }
 
-  static new(options: TelemetryOptions): TelemetryLogger {
+  static new(options?: TelemetryOptions): TelemetryLogger {
     return new StdOutTelemetryLogger(options)
   }
 }
