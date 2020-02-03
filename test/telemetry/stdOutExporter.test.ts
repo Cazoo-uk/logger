@@ -1,6 +1,6 @@
-import { Telemetry } from '../../lib/telemetry'
 import { Writable } from 'stream'
-import { StdOutExporter } from '../../lib/telemetry/'
+import { StdOutExporter } from '../../lib/telemetry/stdOutExporter'
+import { Telemetry } from '../../lib/telemetry'
 
 class StubWritable extends Writable {
   public written: string[]
@@ -26,17 +26,17 @@ it('should write to the stream provided', async () => {
   const stream = new StubWritable()
 
   const exporter = new StdOutExporter(stream)
-  const tracer = Telemetry.new({ exporter })
+  const trace = Telemetry.new({ exporter })
 
   const traceDescription = 'do a thing'
   const subTrace = 'some sub-task'
   const someData = { some: 'data' }
   const someOtherData = { some: { other: 'data' } }
 
-  tracer.for(traceDescription, () => {
-    tracer.addInfo('a thing had the following affect', someData)
-    tracer.for(subTrace, () => {
-      tracer.addInfo('another thing happened', someOtherData)
+  trace.for(traceDescription, trace => {
+    trace.addInfo('a thing had the following affect', someData)
+    trace.for(subTrace, trace => {
+      trace.addInfo('another thing happened', someOtherData)
     })
   })
 
@@ -50,12 +50,12 @@ it('should end each line with a newline', async () => {
   const stream = new StubWritable()
 
   const exporter = new StdOutExporter(stream)
-  const tracer = Telemetry.new({ exporter })
+  const trace = Telemetry.new({ exporter })
 
-  tracer.for('root', () => {
-    tracer.addInfo('a thing had the following affect', 'some data')
-    tracer.for('child', () => {
-      tracer.addInfo('another thing happened', 'some other data')
+  trace.for('root', trace => {
+    trace.addInfo('a thing had the following affect', 'some data')
+    trace.for('child', trace => {
+      trace.addInfo('another thing happened', 'some other data')
     })
   })
 

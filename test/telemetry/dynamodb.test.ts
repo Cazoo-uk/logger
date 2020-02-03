@@ -6,9 +6,9 @@ import { Telemetry } from '../../lib/telemetry'
 it('When logging in a DynamoDB stream event context', async () => {
   const { spans, exporter } = new TestableTelemetry()
 
-  const tracing = Telemetry.fromContext(event, context, { exporter })
+  const trace = Telemetry.fromContext(event, context, { exporter })
 
-  tracing.for('Hello world', () => {})
+  trace.for('Hello world', () => {})
 
   expect(spans[0].name).toBe('Hello world')
   expect(spans[0].attributes).toMatchObject({
@@ -34,12 +34,12 @@ it('When using withContext to provide additional context information', async () 
   const vrm = 'ABCDEF'
   const usefulField = 123
   const { spans, exporter } = new TestableTelemetry()
-  const log = Telemetry.fromContext(event, context, {
+  const trace = Telemetry.fromContext(event, context, {
     exporter,
   }).appendContext({ vrm, usefulField })
 
-  log.for('Hello world', () => {})
-  log.for('Warn message', () => {})
+  trace.for('Hello world', () => {})
+  trace.for('Warn message', () => {})
 
   expect(spans.length).toBe(2)
 

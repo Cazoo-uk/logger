@@ -2,11 +2,11 @@ import { ReadableSpan } from '@opentelemetry/tracing'
 import { TimedEvent } from '@opentelemetry/types'
 import uuid = require('uuid')
 import { TestableTelemetry } from './testTelemetry'
-import { Telemetry, TelemetryLogger } from '../../lib/telemetry'
+import { Telemetry, Trace } from '../../lib/telemetry'
 
 describe('Cazoo Telemetry', () => {
   let spans: ReadableSpan[]
-  let tracing: TelemetryLogger
+  let trace: Trace
 
   function spanWithName(name: string): ReadableSpan {
     return spans.find(y => y.name === name)
@@ -23,11 +23,11 @@ describe('Cazoo Telemetry', () => {
   beforeEach(() => {
     const { exporter, spans: exportedSpans } = new TestableTelemetry()
     spans = exportedSpans
-    tracing = Telemetry.new({ exporter })
+    trace = Telemetry.new({ exporter })
   })
 
   it('should log a basic telemetry trace', () => {
-    tracing.for('name', () => {
+    trace.for('name', tracing => {
       tracing.addInfo('some info')
     })
 
@@ -39,7 +39,7 @@ describe('Cazoo Telemetry', () => {
   describe('when adding multiple infos to the same trace', () => {
     const infoMessages = ['some info', 'some more info']
     beforeEach(() => {
-      tracing.for('temp', () => {
+      trace.for('temp', tracing => {
         tracing.addInfo(infoMessages[0])
         tracing.addInfo(infoMessages[1])
       })
@@ -76,17 +76,15 @@ describe('Cazoo Telemetry', () => {
     }
 
     beforeEach(() => {
-      tracing.for(rootSpanName, () => {
-        /* hey I'm doing a thing */
-        tracing.for(firstChild.name, () => {
-          /* hey me too */
-          tracing.addInfo(firstChild.message)
+      trace.for(rootSpanName, (trace: Trace) => {
+        trace.for(firstChild.name, (trace: Trace) => {
+          trace.addInfo(firstChild.message)
         })
-        tracing.for(secondChild.name, () => {
-          tracing.addInfo(secondChild.message)
+        trace.for(secondChild.name, (trace: Trace) => {
+          trace.addInfo(secondChild.message)
 
-          tracing.for(thirdChild.name, () => {
-            tracing.addInfo(thirdChild.message)
+          trace.for(thirdChild.name, (trace: Trace) => {
+            trace.addInfo(thirdChild.message)
           })
         })
       })
@@ -131,13 +129,15 @@ describe('Cazoo Telemetry', () => {
 
   describe('should log even when an error is thrown', () => {
     const error = new Error('oops')
+    let thrown: Error
+
     beforeEach(() => {
       try {
-        tracing.for('root', () => {
+        trace.for('root', () => {
           throw error
         })
-      } catch {
-        /* no op */
+      } catch (err) {
+        thrown = err
       }
     })
 
@@ -150,18 +150,22 @@ describe('Cazoo Telemetry', () => {
       expect(event.name).toBe('error')
       expect(event.attributes).toStrictEqual(error)
     })
+
+    it('should rethrow', () => {
+      expect(thrown).toBe(error)
+    })
   })
 
   describe('should log even when an error is thrown deeply nested', () => {
     const error = new Error('oops!')
     beforeEach(() => {
       try {
-        tracing.for('root', () => {
-          tracing.for('not root', () => {
-            tracing.for('not root', () => {
-              tracing.for('not root', () => {
-                tracing.for('not root', () => {
-                  tracing.for('throws error', () => {
+        trace.for('root', trace => {
+          trace.for('not root', trace => {
+            trace.for('not root', trace => {
+              trace.for('not root', trace => {
+                trace.for('not root', trace => {
+                  trace.for('throws error', () => {
                     throw error
                   })
                 })
@@ -195,8 +199,9 @@ describe('Cazoo Telemetry', () => {
         dataPoint1: uuid(),
         dataPoint2: uuid(),
       }
-      tracing.for('root', () => {
-        tracing.addInfo('something happened', dataAboutThingThatHappened)
+
+      trace.for('root', (trace: Trace) => {
+        trace.addInfo('something happened', dataAboutThingThatHappened)
       })
     })
 
@@ -224,14 +229,14 @@ describe('Cazoo Telemetry', () => {
         updatedContext: uuid(),
       }
 
-      tracing.appendContext(oldcontext)
+      trace.appendContext(oldcontext)
 
-      tracing.for('should have old context', () => {
-        tracing.appendContext(newContext)
-        tracing.for('should have new and old context', () => {
-          tracing.addInfo('should be attached to trace with new context')
+      trace.for('should have old context', (trace: Trace) => {
+        trace.appendContext(newContext)
+        trace.for('should have new and old context', trace => {
+          trace.addInfo('should be attached to trace with new context')
         })
-        tracing.addInfo('should be attached to trace with old context')
+        trace.addInfo('should be attached to trace with old context')
       })
     })
 
@@ -256,9 +261,9 @@ describe('Cazoo Telemetry', () => {
     const traceThatShouldHaveInfo = 'trace with info'
     const info = 'some info'
 
-    tracing.for('root', () => {
-      tracing.for(traceThatShouldHaveInfo, () => {
-        tracing.addInfo(info)
+    trace.for('root', trace => {
+      trace.for(traceThatShouldHaveInfo, trace => {
+        trace.addInfo(info)
       })
     })
 

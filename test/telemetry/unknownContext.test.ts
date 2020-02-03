@@ -5,11 +5,11 @@ import { AnyEvent } from '../../lib/events/anyEvent'
 
 it('When logging in a cloudwatch event context', async () => {
   const { spans, exporter } = new TestableTelemetry()
-  const tracing = Telemetry.fromContext({} as AnyEvent, context, {
+  const trace = Telemetry.fromContext({} as AnyEvent, context, {
     exporter,
   })
 
-  tracing.for('some description', () => {})
+  trace.for('some description', () => {})
 
   expect(spans[0].attributes.context).toStrictEqual({})
 })

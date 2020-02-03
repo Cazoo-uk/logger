@@ -6,9 +6,9 @@ import { Telemetry } from '../../lib/telemetry'
 it('When logging in an S3 SNS context', async () => {
   const { spans, exporter } = new TestableTelemetry()
 
-  const tracing = Telemetry.fromContext(event, context, { exporter })
+  const trace = Telemetry.fromContext(event, context, { exporter })
 
-  tracing.for('Hello world', () => {})
+  trace.for('Hello world', () => {})
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -37,11 +37,11 @@ it('When using withContext to provide additional context information', () => {
   const usefulField = 123
   const { spans, exporter } = new TestableTelemetry()
 
-  const tracing = Telemetry.fromContext(event, context, { exporter })
-  tracing.appendContext({ vrm, usefulField })
+  const trace = Telemetry.fromContext(event, context, { exporter })
+  trace.appendContext({ vrm, usefulField })
 
-  tracing.for('Hello world', () => {})
-  tracing.for('Warn message', () => {})
+  trace.for('Hello world', () => {})
+  trace.for('Warn message', () => {})
 
   // ASSERT
   expect(spans.length).toBe(2)
@@ -64,9 +64,11 @@ it('When using withContext to provide additional context information', () => {
 it('When logging in a non S3 SNS context', async () => {
   const { spans, exporter } = new TestableTelemetry()
 
-  const tracing = Telemetry.fromContext(nonS3Event, context, { exporter })
+  const trace = Telemetry.fromContext(nonS3Event, context, {
+    exporter,
+  })
 
-  tracing.for('Hello world', () => {})
+  trace.for('Hello world', () => {})
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -90,11 +92,13 @@ it('When using withContext to provide additional context information', async () 
   const usefulField = 123
   const { spans, exporter } = new TestableTelemetry()
 
-  const tracing = Telemetry.fromContext(nonS3Event, context, { exporter })
-  tracing.appendContext({ vrm, usefulField })
+  const trace = Telemetry.fromContext(nonS3Event, context, {
+    exporter,
+  })
+  trace.appendContext({ vrm, usefulField })
 
-  tracing.for('Hello world', () => {})
-  tracing.for('Warn message', () => {})
+  trace.for('Hello world', () => {})
+  trace.for('Warn message', () => {})
 
   // ASSERT
   expect(spans.length).toBe(2)

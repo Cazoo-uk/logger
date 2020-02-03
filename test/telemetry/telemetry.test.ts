@@ -3,10 +3,10 @@ import { Telemetry } from '../../lib/telemetry'
 describe('Telemetry static constructors', () => {
   describe('[.fromContext]', () => {
     it("doesn't blow up if given all undefineds", () => {
-      const tracer = Telemetry.fromContext()
-      expect(tracer).toBeDefined()
+      const trace = Telemetry.fromContext()
+      expect(trace).toBeDefined()
 
-      tracer.for('do a thing', () => {
+      trace.for('do a thing', () => {
         expect('this code should be hit').toBeDefined()
       })
     })
@@ -14,10 +14,10 @@ describe('Telemetry static constructors', () => {
 
   describe('[.new]', () => {
     it("doesn't blow up if given undefined context", () => {
-      const tracer = Telemetry.new()
-      expect(tracer).toBeDefined()
+      const trace = Telemetry.new()
+      expect(trace).toBeDefined()
 
-      tracer.for('do a thing', () => {
+      trace.for('do a thing', () => {
         expect('this code should be hit').toBeDefined()
       })
     })

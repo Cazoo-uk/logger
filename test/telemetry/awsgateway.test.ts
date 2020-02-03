@@ -1,19 +1,24 @@
 import { event, context } from '../data/awsgateway'
 import { TestableTelemetry } from './testTelemetry'
 import { Telemetry } from '../../lib/telemetry'
+import { ReadableSpan } from '@opentelemetry/tracing'
 
 describe('When tracing in an API Gateway event context', () => {
   const traceName = 'trace name'
   const infoDescription = 'something happened'
   const infoData = { someData: 'some value' }
+  let spans: ReadableSpan[]
 
-  const { exporter, spans } = new TestableTelemetry()
-  const tracing = Telemetry.fromContext(event, context, {
-    exporter,
-  })
+  beforeAll(() => {
+    const { exporter, spans: readable } = new TestableTelemetry()
+    spans = readable
+    const trace = Telemetry.fromContext(event, context, {
+      exporter,
+    })
 
-  tracing.for(traceName, () => {
-    tracing.addInfo(infoDescription, infoData)
+    trace.for(traceName, trace => {
+      trace.addInfo(infoDescription, infoData)
+    })
   })
 
   it('should add the full context of aws gateway', () => {
@@ -49,12 +54,12 @@ describe('When using withContext to provide additional context information for t
   const additionalContext = { additionalContext: 'its a car' }
 
   const { exporter, spans } = new TestableTelemetry()
-  const tracing = Telemetry.fromContext(event, context, {
+  const trace = Telemetry.fromContext(event, context, {
     exporter,
   }).appendContext(additionalContext)
 
-  tracing.for(traceName, () => {
-    tracing.addInfo(infoDescription, infoData)
+  trace.for(traceName, trace => {
+    trace.addInfo(infoDescription, infoData)
   })
 
   it('should include the additional context', () => {

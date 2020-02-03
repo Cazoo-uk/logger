@@ -32,12 +32,12 @@ it('When using withContext to provide additional context information', () => {
   const usefulField = 123
   const { spans, exporter } = new TestableTelemetry()
 
-  const tracing = Telemetry.fromContext(record, context, {
+  const trace = Telemetry.fromContext(record, context, {
     exporter,
   }).appendContext({ vrm, usefulField })
 
-  tracing.for('Hello world', () => {})
-  tracing.for('Warn message', () => {})
+  trace.for('Hello world', () => {})
+  trace.for('Warn message', () => {})
 
   expect(spans.length).toBe(2)
 

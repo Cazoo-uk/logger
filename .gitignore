@@ -78,3 +78,4 @@ TEST-results.xml
 .serverless
 .nyc_output
 dist/
+.wallaby.conf.js
