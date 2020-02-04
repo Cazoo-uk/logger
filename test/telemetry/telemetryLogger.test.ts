@@ -6,7 +6,7 @@ import { Telemetry, Trace } from '../../lib/telemetry'
 
 describe('Cazoo Telemetry', () => {
   let spans: ReadableSpan[]
-  let trace: Trace
+  let root: Trace
 
   function spanWithName(name: string): ReadableSpan {
     return spans.find(y => y.name === name)
@@ -23,13 +23,13 @@ describe('Cazoo Telemetry', () => {
   beforeEach(() => {
     const { exporter, spans: exportedSpans } = new TestableTelemetry()
     spans = exportedSpans
-    trace = Telemetry.new({ exporter })
+    root = Telemetry.new({ exporter })
   })
 
   it('should log a basic telemetry trace', () => {
-    trace.for('name', tracing => {
-      tracing.addInfo('some info')
-    })
+    const child = root.makeChild('name')
+    child.addInfo('some info')
+    child.end()
 
     expect(spans.length).toBe(1)
     expect(spans[0].events[0].name).toBe('some info')
@@ -39,10 +39,10 @@ describe('Cazoo Telemetry', () => {
   describe('when adding multiple infos to the same trace', () => {
     const infoMessages = ['some info', 'some more info']
     beforeEach(() => {
-      trace.for('temp', tracing => {
-        tracing.addInfo(infoMessages[0])
-        tracing.addInfo(infoMessages[1])
-      })
+      const child = root.makeChild('temp')
+      child.addInfo(infoMessages[0])
+      child.addInfo(infoMessages[1])
+      child.end()
     })
 
     it('should export 1 span', () => {
@@ -76,18 +76,14 @@ describe('Cazoo Telemetry', () => {
     }
 
     beforeEach(() => {
-      trace.for(rootSpanName, (trace: Trace) => {
-        trace.for(firstChild.name, (trace: Trace) => {
-          trace.addInfo(firstChild.message)
-        })
-        trace.for(secondChild.name, (trace: Trace) => {
-          trace.addInfo(secondChild.message)
+      const firstChildTrace = root.makeChild(firstChild.name)
+      firstChildTrace.addInfo(firstChild.message)
+      const secondChildTrace = root.makeChild(secondChild.name)
+      secondChildTrace.addInfo(secondChild.message)
 
-          trace.for(thirdChild.name, (trace: Trace) => {
-            trace.addInfo(thirdChild.message)
-          })
-        })
-      })
+      const thirdChildTrace = secondChildTrace.makeChild(thirdChild.name)
+      thirdChildTrace.addInfo(thirdChild.message)
+      root.end()
     })
 
     it('should export 4 spans', () => {
@@ -133,10 +129,9 @@ describe('Cazoo Telemetry', () => {
 
     beforeEach(() => {
       try {
-        trace.for('root', () => {
-          throw error
-        })
+        throw error
       } catch (err) {
+        root.error(err)
         thrown = err
       }
     })
@@ -156,41 +151,6 @@ describe('Cazoo Telemetry', () => {
     })
   })
 
-  describe('should log even when an error is thrown deeply nested', () => {
-    const error = new Error('oops!')
-    beforeEach(() => {
-      try {
-        trace.for('root', trace => {
-          trace.for('not root', trace => {
-            trace.for('not root', trace => {
-              trace.for('not root', trace => {
-                trace.for('not root', trace => {
-                  trace.for('throws error', () => {
-                    throw error
-                  })
-                })
-              })
-            })
-          })
-        })
-      } catch {
-        /* no op */
-      }
-    })
-
-    it('should export the span', () => {
-      expect(spans.length).toBe(6)
-    })
-
-    it('should add the error as info', () => {
-      const span = spans[0]
-      const event = span.events[0]
-      expect(span.name).toBe('throws error')
-      expect(event.name).toBe('error')
-      expect(event.attributes).toStrictEqual(error)
-    })
-  })
-
   describe('when adding arbitrary data to a trace', () => {
     let dataAboutThingThatHappened: { dataPoint1: string; dataPoint2: string }
 
@@ -200,13 +160,13 @@ describe('Cazoo Telemetry', () => {
         dataPoint2: uuid(),
       }
 
-      trace.for('root', (trace: Trace) => {
-        trace.addInfo('something happened', dataAboutThingThatHappened)
-      })
+      const child = root.makeChild('root')
+      child.addInfo('something happened', dataAboutThingThatHappened)
+      root.end()
     })
 
     it('should export the span', () => {
-      expect(spans.length).toBe(1)
+      expect(spans.length).toBe(2)
     })
 
     it('should include the all the arbitrary data', () => {
@@ -229,19 +189,18 @@ describe('Cazoo Telemetry', () => {
         updatedContext: uuid(),
       }
 
-      trace.appendContext(oldcontext)
+      root.appendContext(oldcontext)
 
-      trace.for('should have old context', (trace: Trace) => {
-        trace.appendContext(newContext)
-        trace.for('should have new and old context', trace => {
-          trace.addInfo('should be attached to trace with new context')
-        })
-        trace.addInfo('should be attached to trace with old context')
-      })
+      const child = root.makeChild('should have old context')
+      child.appendContext(newContext)
+      const subChild = child.makeChild('should have new and old context')
+      subChild.addInfo('should be attached to trace with new context')
+      child.addInfo('should be attached to trace with old context')
+      root.end()
     })
 
-    it('should track both traces', () => {
-      expect(spans.length).toBe(2)
+    it('should track both traces and the root', () => {
+      expect(spans.length).toBe(3)
     })
 
     it('should have the original context on the root trace', () => {
@@ -261,11 +220,9 @@ describe('Cazoo Telemetry', () => {
     const traceThatShouldHaveInfo = 'trace with info'
     const info = 'some info'
 
-    trace.for('root', trace => {
-      trace.for(traceThatShouldHaveInfo, trace => {
-        trace.addInfo(info)
-      })
-    })
+    const child = root.makeChild(traceThatShouldHaveInfo)
+    child.addInfo(info)
+    root.end()
 
     const traceThatDoesHaveInfo = findSpanWithEventMatchingName(info).name
     expect(traceThatDoesHaveInfo).toBe(traceThatShouldHaveInfo)

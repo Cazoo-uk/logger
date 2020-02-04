@@ -1,16 +1,18 @@
 import { Span, Tracer, Attributes } from '@opentelemetry/types'
 
 export class Trace {
-  private readonly span: Span
   private readonly tracer: Tracer
+  private children: Trace[]
+  private span: Span
   private context: Attributes
 
-  public constructor(tracer: Tracer, span?: Span) {
+  public constructor(tracer: Tracer, span: Span) {
     this.span = span
     this.tracer = tracer
+    this.children = []
   }
 
-  private makeChild(description: string): Trace {
+  makeChild(description: string): Trace {
     const childTrace = new Trace(
       this.tracer,
       this.tracer.startSpan(description, {
@@ -19,16 +21,17 @@ export class Trace {
       })
     )
     childTrace.appendContext(this.context)
+    this.children.push(childTrace)
     return childTrace
   }
 
-  private handleError(childTrace: Trace, e: unknown): void {
-    childTrace.addInfo('error', e as Attributes)
-    childTrace.span.end()
-    throw e
+  error(e: unknown): void {
+    this.addInfo('error', e as Attributes)
+    this.end()
   }
 
   end(): void {
+    this.children.forEach(x => x.end())
     this.span.end()
   }
 
@@ -41,31 +44,6 @@ export class Trace {
       this.span.setAttributes({ context: this.context })
     }
     return this
-  }
-
-  for<T>(description: string, fn: (trace: Trace) => T): T {
-    const child = this.makeChild(description)
-    try {
-      const result: T = fn(child)
-      child.end()
-      return result
-    } catch (e) {
-      this.handleError(child, e)
-    }
-  }
-
-  async async<T>(
-    description: string,
-    fn: (trace: Trace) => Promise<T>
-  ): Promise<T> {
-    const child = this.makeChild(description)
-    try {
-      const result: T = await fn(child)
-      child.end()
-      return result
-    } catch (e) {
-      this.handleError(child, e)
-    }
   }
 
   addInfo(description: string, additionalData?: unknown): void {

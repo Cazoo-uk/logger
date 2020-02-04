@@ -7,8 +7,7 @@ it('When logging in an SQS event context', async () => {
   const { spans, exporter } = new TestableTelemetry()
 
   const trace = Telemetry.fromContext(record, context, { exporter })
-
-  trace.for('Hello world', () => {})
+  trace.end()
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -35,11 +34,9 @@ it('When using withContext to provide additional context information', () => {
   const trace = Telemetry.fromContext(record, context, {
     exporter,
   }).appendContext({ vrm, usefulField })
+  trace.end()
 
-  trace.for('Hello world', () => {})
-  trace.for('Warn message', () => {})
-
-  expect(spans.length).toBe(2)
+  expect(spans.length).toBe(1)
 
   expect(spans[0].attributes).toMatchObject({
     context: {

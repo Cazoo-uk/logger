@@ -15,7 +15,7 @@ export class Telemetry {
     const registry = new BasicTracerRegistry()
     registry.addSpanProcessor(new SimpleSpanProcessor(exporter))
     const tracer = registry.getTracer('cazoo', undefined, {})
-    return new Trace(tracer)
+    return new Trace(tracer, tracer.startSpan('root'))
   }
 
   public static new(options?: TelemetryOptions): Trace {

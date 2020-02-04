@@ -17,28 +17,28 @@ class StubWritable extends Writable {
 
 it('should write to stdout without blowing up', () => {
   const exporter = new StdOutExporter()
-  const tracer = Telemetry.new({ exporter })
+  const root = Telemetry.new({ exporter })
 
-  tracer.for('I should be written to stdout', () => {})
+  root.makeChild('I should be written to stdout')
+  root.end()
 })
 
 it('should write to the stream provided', async () => {
   const stream = new StubWritable()
 
   const exporter = new StdOutExporter(stream)
-  const trace = Telemetry.new({ exporter })
+  const root = Telemetry.new({ exporter })
 
   const traceDescription = 'do a thing'
   const subTrace = 'some sub-task'
   const someData = { some: 'data' }
   const someOtherData = { some: { other: 'data' } }
 
-  trace.for(traceDescription, trace => {
-    trace.addInfo('a thing had the following affect', someData)
-    trace.for(subTrace, trace => {
-      trace.addInfo('another thing happened', someOtherData)
-    })
-  })
+  const child = root.makeChild('do a thing')
+  child.addInfo('a thing had the following affect', someData)
+  const subChild = child.makeChild(subTrace)
+  subChild.addInfo('another thing happened', someOtherData)
+  root.end()
 
   expect(stream.written[0]).toContain(subTrace)
   expect(stream.written[0]).toContain(JSON.stringify(someOtherData))
@@ -50,14 +50,14 @@ it('should end each line with a newline', async () => {
   const stream = new StubWritable()
 
   const exporter = new StdOutExporter(stream)
-  const trace = Telemetry.new({ exporter })
+  const root = Telemetry.new({ exporter })
 
-  trace.for('root', trace => {
-    trace.addInfo('a thing had the following affect', 'some data')
-    trace.for('child', trace => {
-      trace.addInfo('another thing happened', 'some other data')
-    })
-  })
+  const child = root.makeChild('child')
+
+  child.addInfo('a thing had the following affect', 'some data')
+  const subChild = child.makeChild('subchild')
+  subChild.addInfo('another thing happened', 'some other data')
+  root.end()
 
   expect(stream.written[0]).not.toContain('\n')
   expect(stream.written[1]).toBe('\n')

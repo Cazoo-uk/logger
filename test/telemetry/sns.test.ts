@@ -6,9 +6,8 @@ import { Telemetry } from '../../lib/telemetry'
 it('When logging in an S3 SNS context', async () => {
   const { spans, exporter } = new TestableTelemetry()
 
-  const trace = Telemetry.fromContext(event, context, { exporter })
-
-  trace.for('Hello world', () => {})
+  const root = Telemetry.fromContext(event, context, { exporter })
+  root.end()
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -37,23 +36,14 @@ it('When using withContext to provide additional context information', () => {
   const usefulField = 123
   const { spans, exporter } = new TestableTelemetry()
 
-  const trace = Telemetry.fromContext(event, context, { exporter })
-  trace.appendContext({ vrm, usefulField })
-
-  trace.for('Hello world', () => {})
-  trace.for('Warn message', () => {})
+  const root = Telemetry.fromContext(event, context, { exporter })
+  root.appendContext({ vrm, usefulField })
+  root.end()
 
   // ASSERT
-  expect(spans.length).toBe(2)
+  expect(spans.length).toBe(1)
 
   expect(spans[0].attributes).toMatchObject({
-    context: {
-      vrm,
-      usefulField,
-    },
-  })
-
-  expect(spans[1].attributes).toMatchObject({
     context: {
       vrm,
       usefulField,
@@ -64,11 +54,10 @@ it('When using withContext to provide additional context information', () => {
 it('When logging in a non S3 SNS context', async () => {
   const { spans, exporter } = new TestableTelemetry()
 
-  const trace = Telemetry.fromContext(nonS3Event, context, {
+  const root = Telemetry.fromContext(nonS3Event, context, {
     exporter,
   })
-
-  trace.for('Hello world', () => {})
+  root.end()
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -92,25 +81,17 @@ it('When using withContext to provide additional context information', async () 
   const usefulField = 123
   const { spans, exporter } = new TestableTelemetry()
 
-  const trace = Telemetry.fromContext(nonS3Event, context, {
+  const root = Telemetry.fromContext(nonS3Event, context, {
     exporter,
   })
-  trace.appendContext({ vrm, usefulField })
+  root.appendContext({ vrm, usefulField })
 
-  trace.for('Hello world', () => {})
-  trace.for('Warn message', () => {})
+  root.end()
 
   // ASSERT
-  expect(spans.length).toBe(2)
+  expect(spans.length).toBe(1)
 
   expect(spans[0].attributes).toMatchObject({
-    context: {
-      vrm,
-      usefulField,
-    },
-  })
-
-  expect(spans[1].attributes).toMatchObject({
     context: {
       vrm,
       usefulField,

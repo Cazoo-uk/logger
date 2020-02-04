@@ -6,9 +6,9 @@ describe('Telemetry static constructors', () => {
       const trace = Telemetry.fromContext()
       expect(trace).toBeDefined()
 
-      trace.for('do a thing', () => {
-        expect('this code should be hit').toBeDefined()
-      })
+      trace.makeChild('do a thing')
+      trace.end()
+      expect('this code should be hit').toBeDefined()
     })
   })
 
@@ -17,9 +17,9 @@ describe('Telemetry static constructors', () => {
       const trace = Telemetry.new()
       expect(trace).toBeDefined()
 
-      trace.for('do a thing', () => {
-        expect('this code should be hit').toBeDefined()
-      })
+      trace.makeChild('do a thing')
+      trace.end()
+      expect('this code should be hit').toBeDefined()
     })
   })
 })

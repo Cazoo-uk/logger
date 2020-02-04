@@ -4,11 +4,12 @@ import { Telemetry } from '../../lib/telemetry'
 
 it('When logging in a cloudwatch event context', async () => {
   const { spans, exporter } = new TestableTelemetry()
-  const trace = Telemetry.fromContext(requestEvent, context, {
+
+  const root = Telemetry.fromContext(requestEvent, context, {
     exporter,
   })
 
-  trace.for('some description', () => {})
+  root.end()
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -38,23 +39,15 @@ it('When using withContext to provide additional context information', async () 
 
   const { spans, exporter } = new TestableTelemetry()
 
-  const trace = Telemetry.fromContext(requestEvent, context, {
+  const root = Telemetry.fromContext(requestEvent, context, {
     exporter,
   }).appendContext({ vrm, usefulField })
 
-  trace.for('Hello world', () => {})
-  trace.for('Hello other world', () => {})
+  root.end()
 
-  expect(spans.length).toBe(2)
+  expect(spans.length).toBe(1)
 
   expect(spans[0].attributes).toMatchObject({
-    context: {
-      vrm,
-      usefulField,
-    },
-  })
-
-  expect(spans[1].attributes).toMatchObject({
     context: {
       vrm,
       usefulField,

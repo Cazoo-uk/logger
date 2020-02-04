@@ -5,8 +5,8 @@ import { Telemetry } from '../../lib/telemetry'
 
 it('When logging in a cloudwatch event context', async () => {
   const { spans, exporter } = new TestableTelemetry()
-  const trace = Telemetry.fromContext(event, context, { exporter })
-  trace.for('Hello world', () => {})
+  const root = Telemetry.fromContext(event, context, { exporter })
+  root.end()
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -31,15 +31,18 @@ it('When using withContext to provide additional context information', async () 
   const usefulField = 123
 
   const { spans, exporter } = new TestableTelemetry()
-  const trace = Telemetry.fromContext(event, context, {
+  const root = Telemetry.fromContext(event, context, {
     exporter,
   }).appendContext({ vrm, usefulField })
 
-  trace.for('Hello world', () => {})
-  trace.for('Warn message', () => {})
+  const child = root.makeChild('Hello world')
+  child.end()
+  const otherChild = root.makeChild('Warn message')
+  otherChild.end()
+  root.end()
 
   // ASSERT
-  expect(spans.length).toBe(2)
+  expect(spans.length).toBe(3)
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -61,12 +64,11 @@ it('When specifying a service name', async () => {
 
   const { spans, exporter } = new TestableTelemetry()
 
-  const trace = Telemetry.fromContext(event, context, {
+  const root = Telemetry.fromContext(event, context, {
     exporter,
     service,
   })
-
-  trace.for('Hello world', () => {})
+  root.end()
 
   expect(spans[0].attributes).toMatchObject({
     context: {
@@ -92,12 +94,11 @@ it('When specifying the service as an env var', async () => {
 
   const { spans, exporter } = new TestableTelemetry()
 
-  const trace = Telemetry.fromContext(event, context, {
+  const root = Telemetry.fromContext(event, context, {
     exporter,
     service,
   })
-
-  trace.for('Hello world', () => {})
+  root.end()
 
   expect(spans[0].attributes).toMatchObject({
     context: {

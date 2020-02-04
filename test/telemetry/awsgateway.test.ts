@@ -4,21 +4,16 @@ import { Telemetry } from '../../lib/telemetry'
 import { ReadableSpan } from '@opentelemetry/tracing'
 
 describe('When tracing in an API Gateway event context', () => {
-  const traceName = 'trace name'
-  const infoDescription = 'something happened'
-  const infoData = { someData: 'some value' }
   let spans: ReadableSpan[]
 
   beforeAll(() => {
     const { exporter, spans: readable } = new TestableTelemetry()
     spans = readable
-    const trace = Telemetry.fromContext(event, context, {
+    const root = Telemetry.fromContext(event, context, {
       exporter,
     })
 
-    trace.for(traceName, trace => {
-      trace.addInfo(infoDescription, infoData)
-    })
+    root.end()
   })
 
   it('should add the full context of aws gateway', () => {
@@ -48,19 +43,14 @@ describe('When tracing in an API Gateway event context', () => {
 })
 
 describe('When using withContext to provide additional context information for traces', () => {
-  const traceName = 'trace name'
-  const infoDescription = 'something happened'
-  const infoData = { someData: 'some value' }
   const additionalContext = { additionalContext: 'its a car' }
 
   const { exporter, spans } = new TestableTelemetry()
-  const trace = Telemetry.fromContext(event, context, {
+  const root = Telemetry.fromContext(event, context, {
     exporter,
   }).appendContext(additionalContext)
 
-  trace.for(traceName, trace => {
-    trace.addInfo(infoDescription, infoData)
-  })
+  root.end()
 
   it('should include the additional context', () => {
     expect(spans[0].attributes).toMatchObject({
