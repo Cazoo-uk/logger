@@ -1,5 +1,5 @@
 import { ReadableSpan } from '@opentelemetry/tracing'
-import { TestableTelemetry } from './testTelemetry'
+import { TestableTelemetry } from './helpers/testableTelemetry'
 import { Telemetry, Trace } from '../../lib/telemetry'
 
 describe('When awaiting before an add info', () => {
@@ -18,8 +18,8 @@ describe('When awaiting before an add info', () => {
   }
 
   beforeAll(() => {
-    const { exporter, spans: readable } = new TestableTelemetry()
-    telemetry = Telemetry.new({ exporter })
+    const { options, spans: readable } = new TestableTelemetry()
+    telemetry = Telemetry.new(options)
     spans = readable
   })
 
@@ -45,8 +45,8 @@ describe('When throwing', () => {
   }
 
   beforeAll(async () => {
-    const { exporter, spans: readable } = new TestableTelemetry()
-    root = Telemetry.new({ exporter })
+    const { options, spans: readable } = new TestableTelemetry()
+    root = Telemetry.new(options)
     spans = readable
     try {
       await throwsAsync(root)

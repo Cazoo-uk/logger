@@ -5,11 +5,13 @@ export class Trace {
   private children: Trace[]
   private span: Span
   private context: Attributes
+  private ended: boolean
 
   public constructor(tracer: Tracer, span: Span) {
     this.span = span
     this.tracer = tracer
     this.children = []
+    this.ended = false
   }
 
   makeChild(description: string): Trace {
@@ -32,7 +34,8 @@ export class Trace {
 
   end(): void {
     this.children.forEach(x => x.end())
-    this.span.end()
+    if (!this.ended) this.span.end()
+    this.ended = true
   }
 
   appendContext(context: unknown): Trace {
@@ -47,14 +50,6 @@ export class Trace {
   }
 
   addInfo(description: string, additionalData?: unknown): void {
-    if (this.span) {
-      this.span.addEvent(description, additionalData as Attributes)
-      return
-    }
-    console.warn(
-      'Attempting to add a trace to the root trace.\n\
-You have probably forgotten to pass through the child trace\n\
-Try something like `trace.for("some trace name", trace => {trace.addInfo(...)};...)`'
-    )
+    this.span.addEvent(description, additionalData as Attributes)
   }
 }
