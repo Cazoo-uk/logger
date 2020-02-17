@@ -35,7 +35,7 @@ describe('when making a writable span from a readable span', () => {
     expect(writable.duration).toBe(10)
   })
 
-  it('should set the timestamp in milliseconds', () => {
-    expect(writable.timestamp).toBe(1581939149959)
+  it('should set the timestamp in microseconds', () => {
+    expect(writable.timestamp).toBe(1581939149959273)
   })
 })

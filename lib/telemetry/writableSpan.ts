@@ -19,7 +19,7 @@ export class WritableSpan {
     this.name = span.name
     this.id = span.spanContext.spanId
     this.kind = span.kind
-    this.timestamp = this.hrTimeToMilliseconds(span.startTime)
+    this.timestamp = this.hrTimeToMicroseconds(span.startTime)
     this.duration = this.hrTimeToMilliseconds(span.duration)
     this.attributes = span.attributes
     this.status = span.status
@@ -28,6 +28,10 @@ export class WritableSpan {
 
   private hrTimeToMilliseconds(hrTime): number {
     return Math.round(hrTime[0] * 1e3 + hrTime[1] / 1e6)
+  }
+
+  private hrTimeToMicroseconds(hrTime): number {
+    return Math.round(hrTime[0] * 1e6 + hrTime[1] / 1e3)
   }
 
   public stringify(): string {
