@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
-import { makeContext } from '../shared/context'
+import { makeContext, LoggerContext } from '../shared/context'
 import { LoggerOptions } from '../index'
 import { has } from '../shared/context'
 
-export function isApiGatewayEvent(event: APIGatewayProxyEvent) {
+export function isApiGatewayEvent(event: APIGatewayProxyEvent): boolean {
   return has(event, 'requestContext')
 }
 
@@ -11,7 +11,7 @@ export function makeApiGatewayContext(
   context: Context,
   options: LoggerOptions,
   event: APIGatewayProxyEvent
-) {
+): LoggerContext {
   return makeContext(context, options, {
     http: {
       path: event.path,

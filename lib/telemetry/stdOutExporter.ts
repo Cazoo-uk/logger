@@ -1,20 +1,7 @@
 import { SpanExporter, ReadableSpan } from '@opentelemetry/tracing'
 import { Writable } from 'stream'
 import { ExportResult } from '@opentelemetry/base'
-import { Attributes, Status, TimedEvent } from '@opentelemetry/types'
-
-export class WritableSpan {
-  traceId: string
-  parentId: string
-  name: string
-  id: string
-  kind: string
-  timestamp: number
-  duration: number
-  attributes: Attributes
-  status: Status
-  events: TimedEvent[]
-}
+import { WritableSpan } from './writableSpan'
 
 function noop(): void {
   /* no op */
@@ -39,6 +26,7 @@ function filterBrokenPipe(err, stream): void {
   stream.removeListener('error', filterBrokenPipe)
   stream.emit('error', err)
 }
+
 function protectWritableFromBrokenPipe(stream: Writable): Writable {
   stream.on('error', filterBrokenPipe)
   return stream
@@ -46,33 +34,23 @@ function protectWritableFromBrokenPipe(stream: Writable): Writable {
 
 export class StdOutExporter implements SpanExporter {
   private out: Writable
+
   public constructor(out?: Writable) {
     this.out = protectWritableFromBrokenPipe(out || process.stdout)
   }
+
   export(spans: ReadableSpan[], done: (result: ExportResult) => void): void {
     return this.sendSpans(spans, done)
   }
+
   shutdown(): void {
     return this.sendSpans([])
   }
-  private hrTimeToMicroseconds(hrTime): number {
-    return Math.round(hrTime[0] * 1e6 + hrTime[1] / 1e3)
+
+  private writable(span: ReadableSpan): string {
+    return WritableSpan.from(span).stringify()
   }
-  private writable(span): string {
-    const writable: WritableSpan = {
-      traceId: span.spanContext.traceId,
-      parentId: span.parentSpanId,
-      name: span.name,
-      id: span.spanContext.spanId,
-      kind: span.kind,
-      timestamp: this.hrTimeToMicroseconds(span.startTime),
-      duration: this.hrTimeToMicroseconds(span.duration),
-      attributes: span.attributes,
-      status: span.status,
-      events: span.events,
-    }
-    return JSON.stringify(writable)
-  }
+
   private sendSpans(
     spans: ReadableSpan[],
     done?: (result: ExportResult) => void
