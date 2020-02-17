@@ -37,9 +37,6 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@opentelemetry/scope-async-hooks": "0.3.3",
-    "@opentelemetry/tracing": "0.3.3",
-    "@opentelemetry/types": "0.3.3",
     "@types/pino": "^5.8.8",
     "pino": "^5.12.6",
     "pino-pretty": "^3.2.0",

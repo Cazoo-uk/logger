@@ -379,46 +379,6 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
-"@opentelemetry/base@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/base/-/base-0.3.3.tgz#a2e3508a9c7e068033ee2e7448f18732c1ecbcb7"
-  integrity sha512-NKsQLDxHeLSXYs819XSkCsrPprqxILeKbWY7pIC2e4bp1gwtGNDqfY3lnVZxxoPYaAn0fi3WMymNdsBl7F7DRA==
-
-"@opentelemetry/core@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-0.3.3.tgz#a8e9fd5beaa14a66e89305383e7f4e81557e1d8b"
-  integrity sha512-cG+Q0y59HMZaKisUBge8nsk0OavmVXoOeiSjBbSNzvcbFF94y85dsXNYKI3UfNeQjWy5OAE6U3m9PBqbmK5aGw==
-  dependencies:
-    "@opentelemetry/types" "^0.3.3"
-    semver "^6.3.0"
-
-"@opentelemetry/scope-async-hooks@0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/scope-async-hooks/-/scope-async-hooks-0.3.3.tgz#ac85e26b847cdab578704b756dc1c3b3a7c5e807"
-  integrity sha512-yNMKooMcVch0lhbol0NJn719U75Kwvzw2UukXrzqIBVM+MeYwv12xjT+JuCaLogGv0vrHu4/F1rZCzx6XpoAhg==
-  dependencies:
-    "@opentelemetry/scope-base" "^0.3.3"
-
-"@opentelemetry/scope-base@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/scope-base/-/scope-base-0.3.3.tgz#25eaba4faba8589be4b9adb6db06e38a95f9cacf"
-  integrity sha512-hvBGfNDAUlCQYH5IQXnA0D6wyx4M3w3d+ikg9MOHj7B5QvPjzLAUqkewp6Am3jTQvzD5/1mDd0NFPeFQal9ECA==
-
-"@opentelemetry/tracing@0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/tracing/-/tracing-0.3.3.tgz#620e0c62b28a9aebbdedeff8eb6e6869f3600290"
-  integrity sha512-FQfSvuFFG0n3aInJfATUdXhKPiDQFbfWFSazDVMzRygOy5PuWn0jNsGk5O/tzPirPGMkCbMKvmrTzBv4GYbKzQ==
-  dependencies:
-    "@opentelemetry/base" "^0.3.3"
-    "@opentelemetry/core" "^0.3.3"
-    "@opentelemetry/scope-base" "^0.3.3"
-    "@opentelemetry/types" "^0.3.3"
-
-"@opentelemetry/types@0.3.3", "@opentelemetry/types@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/types/-/types-0.3.3.tgz#e0f241e8ebaffa95c34a1036029db5af608ea63b"
-  integrity sha512-TjYBL/7Lsh6n6z5YMLzpb4XZTJ4XATE9pX8rA0uDb+tya7U0NzpZHRoOYkS1eKaZAyZ07+gu85AooS77MvEP4w==
-
 "@types/aws-lambda@^8.10.27":
   version "8.10.34"
   resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.34.tgz#85b13bf1810cb6118e7e5dbff2b3e4e301d13be7"
