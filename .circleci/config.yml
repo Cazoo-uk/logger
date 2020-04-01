@@ -1,0 +1,114 @@
+version: 2.1
+
+references:
+# Set CircleCI image
+base_image: &base_image
+  node:10
+
+# Set working directory
+working_directory: &working_directory
+  ~/project
+
+# Set default configuration 
+default_config: &default_config
+  docker:
+    - image: *base_image
+  working_directory: *working_directory
+
+repo_cache_key: &repo_cache_key
+  v1-repo-{{ .Branch }}-{{ .Revision }}
+
+# Step to save repository from cache
+save_repo: &save_repo
+  save_cache:
+    key: *repo_cache_key
+    paths:
+      - *working_directory
+
+# Step to initialise environment
+before_script: &before_script
+  <<: *default_config
+  steps:
+    - checkout
+    - attach_workspace:
+        at: *working_directory
+    - run:
+        name: Yarn install
+        command: |
+          yarn install
+    - *save_repo
+
+restore_repo: &restore_repo
+  restore_cache:
+    key: *repo_cache_key
+
+test: &test
+  <<: *default_config
+  steps:
+    - *restore_repo
+    - attach_workspace:
+        at: *working_directory
+    - run:
+        name: Test
+        command: |
+          yarn test
+
+deploy: &deploy
+  <<: *default_config
+  steps:
+    - *restore_repo
+    - attach_workspace:
+        at: *working_directory
+    - run:
+        name: Deploy
+        command: |
+          yarn build
+          echo '//registry.npmjs.org/:_authToken=${CAZOO_NPM_TOKEN}'>.npmrc
+          yarn publish
+
+# Jobs defined
+jobs:
+
+  before_script:
+    <<: *before_script
+
+  test:
+    <<: *test
+
+  deploy:
+    <<: *deploy
+  
+
+# Workflows
+workflows:
+  version: 2
+  test:
+    jobs:
+      - before_script
+      - test:
+          requires:
+            - before_script
+  publish:
+    jobs:
+      - before_script:
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
+      - test:
+          requires:
+            - before_script
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
+      - deploy:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
