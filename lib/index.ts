@@ -231,10 +231,11 @@ export function fromContext(
   context: Context,
   options?: LoggerOptions
 ): Logger {
-  if (options)
-    options.timeoutAfterMs =
-      options.timeoutAfterMs ||
-      (context.getRemainingTimeInMillis && context.getRemainingTimeInMillis())
+  options = options || {}
+  options.timeoutAfterMs =
+    options.timeoutAfterMs ||
+    (context.getRemainingTimeInMillis && context.getRemainingTimeInMillis())
+
   try {
     return (
       forDomainEvent(event as ScheduledEvent, context, options) ||
