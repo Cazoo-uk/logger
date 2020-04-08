@@ -23,6 +23,8 @@ import { isCloudFrontRequest, makeCloudFrontContext } from './events/cloudFront'
 import { makeSNSContext, isSNS } from './events/sns'
 import { isDynamoDbStream, makeDynamoDbContext } from './events/dynamoDbStream'
 
+const MINIMUM_VALID_TIMEOUT_MS = 50
+
 export interface HttpResponseContext {
   status?: number
   error?: Error
@@ -41,6 +43,14 @@ export interface Contexts {
   withHttpResponse(context: HttpResponseContext): Logger
   withData(data: object): Logger
   withContext(data: object): Logger
+}
+
+function configureLambdaTimeout(logger: Logger, options?: LoggerOptions): void {
+  if (!options || !options.timeoutAfterMs) return
+
+  const timeoutMs = options.timeoutAfterMs - 10
+  if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
+    setTimeout(() => logger.error('lambda-timeout'), timeoutMs)
 }
 
 function makeLogger(
@@ -66,7 +76,11 @@ function makeLogger(
     /* eslint-enable @typescript-eslint/no-use-before-define */
   })
 
-  return instance as Logger
+  const logger = instance as Logger
+
+  configureLambdaTimeout(logger, options)
+
+  return logger
 }
 
 function withData(this: Logger, data: object): Logger {
@@ -109,6 +123,7 @@ export interface LoggerOptions {
   level?: string
   service?: string
   redact?: string[] | Pino.redactOptions
+  timeoutAfterMs?: number
 }
 
 export function forDomainEvent(
@@ -216,6 +231,10 @@ export function fromContext(
   context: Context,
   options?: LoggerOptions
 ): Logger {
+  if (options)
+    options.timeoutAfterMs =
+      options.timeoutAfterMs ||
+      (context.getRemainingTimeInMillis && context.getRemainingTimeInMillis())
   try {
     return (
       forDomainEvent(event as ScheduledEvent, context, options) ||
