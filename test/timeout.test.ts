@@ -4,6 +4,12 @@ import { sink } from './helper'
 import { AnyEvent } from '../lib/events/anyEvent'
 import { event, context } from './data/awsgateway'
 
+const timeout = 100
+const timeNotToTriggerTimeout = 89
+const timeToTriggerTimeout = 91
+const timeToTriggerForUnderLimitTimeout = 11
+const timeoutUnderLimit = 20
+
 describe('Preemptive logging of lambda timeouts', () => {
   const msg = 'lambda-timeout'
   const level = 'error'
@@ -17,28 +23,24 @@ describe('Preemptive logging of lambda timeouts', () => {
 
   describe('when taking the timeout from context', () => {
     it('should not log before the timeout expires', () => {
-      const millisRemaining = 100
-      const millisToAdvance = 89
       const context = {
-        getRemainingTimeInMillis: (): number => millisRemaining,
+        getRemainingTimeInMillis: (): number => timeout,
       } as Context
       logger.fromContext({} as AnyEvent, context, { stream, level })
 
-      jest.advanceTimersByTime(millisToAdvance)
+      jest.advanceTimersByTime(timeNotToTriggerTimeout)
 
       expect(stream.read()).toBeNull()
     })
 
     it('should log once the timeout expires', () => {
-      const millisRemaining = 100
-      const millisToAdvance = 91
       const contextEndingSoon = {
         ...context,
-        getRemainingTimeInMillis: (): number => millisRemaining,
+        getRemainingTimeInMillis: (): number => timeout,
       } as Context
       logger.fromContext(event, contextEndingSoon, { stream, level })
 
-      jest.advanceTimersByTime(millisToAdvance)
+      jest.advanceTimersByTime(timeToTriggerTimeout)
 
       expect(stream.read()).toMatchObject(expected)
     })
@@ -49,10 +51,10 @@ describe('Preemptive logging of lambda timeouts', () => {
       logger.fromContext({} as AnyEvent, {} as Context, {
         stream,
         level,
-        timeoutAfterMs: 100,
+        timeoutAfterMs: timeout,
       })
 
-      jest.advanceTimersByTime(89)
+      jest.advanceTimersByTime(timeNotToTriggerTimeout)
 
       expect(stream.read()).toBeNull()
     })
@@ -61,10 +63,10 @@ describe('Preemptive logging of lambda timeouts', () => {
       logger.fromContext({} as AnyEvent, {} as Context, {
         stream,
         level,
-        timeoutAfterMs: 100,
+        timeoutAfterMs: timeout,
       })
 
-      jest.advanceTimersByTime(91)
+      jest.advanceTimersByTime(timeToTriggerTimeout)
 
       expect(stream.read()).toMatchObject(expected)
     })
@@ -73,10 +75,10 @@ describe('Preemptive logging of lambda timeouts', () => {
       logger.fromContext({} as AnyEvent, {} as Context, {
         stream,
         level,
-        timeoutAfterMs: 20,
+        timeoutAfterMs: timeoutUnderLimit,
       })
 
-      jest.advanceTimersByTime(11)
+      jest.advanceTimersByTime(timeToTriggerForUnderLimitTimeout)
 
       expect(stream.read()).toBeNull()
     })
