@@ -130,7 +130,7 @@ export interface LoggerOptions {
   timeoutAfterMs?: number
 }
 
-export function forDomainEvent(
+function forDomainEvent(
   event: ScheduledEvent,
   context: Context,
   options?: LoggerOptions
@@ -146,7 +146,7 @@ export function forDomainEvent(
   }
 }
 
-export function forAPIGatewayEvent(
+function forAPIGatewayEvent(
   event: APIGatewayProxyEvent,
   context: Context,
   options?: LoggerOptions
@@ -162,7 +162,7 @@ export function forAPIGatewayEvent(
   }
 }
 
-export function forSQSRecord(
+function forSQSRecord(
   record: SQSRecord,
   context: Context,
   options?: LoggerOptions
@@ -178,7 +178,7 @@ export function forSQSRecord(
   }
 }
 
-export function forCloudFrontRequest(
+function forCloudFrontRequest(
   request: CloudFrontRequestEvent,
   context: Context,
   options?: LoggerOptions
@@ -194,7 +194,7 @@ export function forCloudFrontRequest(
   }
 }
 
-export function forSNS(
+function forSNS(
   event: SNSEvent,
   context: Context,
   options?: LoggerOptions
@@ -210,7 +210,7 @@ export function forSNS(
   }
 }
 
-export function forDynamoDBStream(
+function forDynamoDBStream(
   event: DynamoDBStreamEvent,
   context: Context,
   options?: LoggerOptions

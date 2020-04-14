@@ -5,7 +5,7 @@ import { event, context } from './data/httpRequest'
 it('When recording an outbound HTTP request', () => {
   const stream = sink()
 
-  let log = logger.forDomainEvent(event, context, { stream, level: 'debug' })
+  let log = logger.fromContext(event, context, { stream, level: 'debug' })
   log = log.withHttpRequest({
     url: 'http://google.com',
     method: 'get',
