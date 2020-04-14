@@ -99,6 +99,9 @@ workflows:
   test:
     jobs:
       - before_script
+      - lint:
+          requires:
+            - before_script
       - test:
           requires:
             - before_script
