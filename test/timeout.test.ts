@@ -1,5 +1,6 @@
 import { Context } from 'aws-lambda'
 import * as logger from '../lib'
+import { getTimeoutBuffer } from '../lib/timeout'
 import { sink } from './helper'
 import { AnyEvent } from '../lib/events/anyEvent'
 import { event, context } from './data/awsgateway'
@@ -9,6 +10,34 @@ const timeNotToTriggerTimeout = 89
 const timeToTriggerTimeout = 91
 const timeToTriggerForUnderLimitTimeout = 11
 const timeoutUnderLimit = 20
+
+describe('setting up the timeout buffer', () => {
+  describe('when not passing a value', () => {
+    it('should use the default of 10', () => {
+      const expected = 10
+      const actual = getTimeoutBuffer()
+      expect(actual).toBe(expected)
+    })
+  })
+
+  describe('when passing a numeric value', () => {
+    it('should use the passed numeric value', () => {
+      const expected = 5
+      process.env.CAZOO_LOGGER_TIMEOUT_BUFFER_MS = '5'
+      const actual = getTimeoutBuffer()
+      expect(actual).toBe(expected)
+    })
+  })
+
+  describe('when passing a non-numeric value', () => {
+    it('should use the default of 10', () => {
+      const expected = 10
+      process.env.CAZOO_LOGGER_TIMEOUT_BUFFER_MS = 'd'
+      const actual = getTimeoutBuffer()
+      expect(actual).toBe(expected)
+    })
+  })
+})
 
 describe('Preemptive logging of lambda timeouts', () => {
   const msg = 'lambda-timeout'

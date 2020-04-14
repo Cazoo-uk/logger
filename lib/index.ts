@@ -22,6 +22,7 @@ import { isSQSRecord, makeSQSRecordContext } from './events/sqsRecord'
 import { isCloudFrontRequest, makeCloudFrontContext } from './events/cloudFront'
 import { makeSNSContext, isSNS } from './events/sns'
 import { isDynamoDbStream, makeDynamoDbContext } from './events/dynamoDbStream'
+import { getTimeoutBuffer } from './timeout'
 
 const MINIMUM_VALID_TIMEOUT_MS = 50
 
@@ -48,7 +49,7 @@ export interface Contexts {
 function configureLambdaTimeout(logger: Logger, options?: LoggerOptions): void {
   if (!options || !options.timeoutAfterMs) return
 
-  const timeoutMs = options.timeoutAfterMs - 10
+  const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
   if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
     setTimeout(() => logger.error('lambda-timeout'), timeoutMs)
 }
