@@ -40,9 +40,10 @@ describe('setting up the timeout buffer', () => {
 })
 
 describe('Preemptive logging of lambda timeouts', () => {
-  const msg = 'lambda-timeout'
+  const msg = 'Lambda Timeout'
+  const type = 'lambda.timeout'
   const level = 'error'
-  const expected = { level, msg }
+  const expected = { level, type, msg }
   let stream
 
   beforeEach(() => {
@@ -97,7 +98,8 @@ describe('Preemptive logging of lambda timeouts', () => {
 
       jest.advanceTimersByTime(timeToTriggerTimeout)
 
-      expect(stream.read()).toMatchObject(expected)
+      const actual = stream.read()
+      expect(actual).toMatchObject(expected)
     })
 
     it('should not log if the timeout is ridiculously short', () => {
@@ -109,6 +111,23 @@ describe('Preemptive logging of lambda timeouts', () => {
 
       jest.advanceTimersByTime(timeToTriggerForUnderLimitTimeout)
 
+      expect(stream.read()).toBeNull()
+    })
+
+    it('should not trigger timeout twice when recreating the logger', () => {
+      const testLogger = logger.fromContext(event, {} as Context, {
+        stream,
+        level,
+        timeoutAfterMs: timeToTriggerTimeout,
+      })
+
+      jest.advanceTimersByTime(timeToTriggerTimeout)
+      expect(stream.read()).toMatchObject(expected)
+
+      // calling `withData` will recreate the logger - potentially triggering the lambda timout setup code
+      testLogger.withData({ some: 'data' })
+
+      jest.advanceTimersByTime(timeToTriggerTimeout)
       expect(stream.read()).toBeNull()
     })
   })

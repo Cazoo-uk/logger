@@ -51,7 +51,10 @@ function configureLambdaTimeout(logger: Logger, options?: LoggerOptions): void {
 
   const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
   if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
-    setTimeout(() => logger.error('lambda-timeout'), timeoutMs)
+    setTimeout(
+      () => logger.error({ type: 'lambda.timeout' }, 'Lambda Timeout'),
+      timeoutMs
+    )
 }
 
 function makeLogger(
