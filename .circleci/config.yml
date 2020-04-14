@@ -42,6 +42,17 @@ restore_repo: &restore_repo
   restore_cache:
     key: *repo_cache_key
 
+lint: &lint
+  <<: *default_config
+  steps:
+    - *restore_repo
+    - attach_workspace:
+        at: *working_directory
+    - run:
+        name: Lint
+        command: |
+          yarn lint
+
 test: &test
   <<: *default_config
   steps:
@@ -72,6 +83,9 @@ jobs:
   before_script:
     <<: *before_script
 
+  lint:
+    <<: *lint
+
   test:
     <<: *test
 
@@ -85,12 +99,23 @@ workflows:
   test:
     jobs:
       - before_script
+      - lint:
+          requires:
+            - before_script
       - test:
           requires:
             - before_script
   publish:
     jobs:
       - before_script:
+          filters:
+            tags:
+              only: /v.*/
+            branches:
+              ignore: /.*/
+      - lint:
+          requires:
+            - before_script
           filters:
             tags:
               only: /v.*/
@@ -107,6 +132,7 @@ workflows:
       - deploy:
           requires:
             - test
+            - lint
           filters:
             tags:
               only: /v.*/

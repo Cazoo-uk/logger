@@ -22,6 +22,9 @@ import { isSQSRecord, makeSQSRecordContext } from './events/sqsRecord'
 import { isCloudFrontRequest, makeCloudFrontContext } from './events/cloudFront'
 import { makeSNSContext, isSNS } from './events/sns'
 import { isDynamoDbStream, makeDynamoDbContext } from './events/dynamoDbStream'
+import { getTimeoutBuffer } from './timeout'
+
+const MINIMUM_VALID_TIMEOUT_MS = 50
 
 export interface HttpResponseContext {
   status?: number
@@ -41,6 +44,17 @@ export interface Contexts {
   withHttpResponse(context: HttpResponseContext): Logger
   withData(data: object): Logger
   withContext(data: object): Logger
+}
+
+function configureLambdaTimeout(logger: Logger, options?: LoggerOptions): void {
+  if (!options || !options.timeoutAfterMs) return
+
+  const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
+  if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
+    setTimeout(
+      () => logger.error({ type: 'lambda.timeout' }, 'Lambda Timeout'),
+      timeoutMs
+    )
 }
 
 function makeLogger(
@@ -66,7 +80,11 @@ function makeLogger(
     /* eslint-enable @typescript-eslint/no-use-before-define */
   })
 
-  return instance as Logger
+  const logger = instance as Logger
+
+  configureLambdaTimeout(logger, options)
+
+  return logger
 }
 
 function withData(this: Logger, data: object): Logger {
@@ -109,9 +127,10 @@ export interface LoggerOptions {
   level?: string
   service?: string
   redact?: string[] | Pino.redactOptions
+  timeoutAfterMs?: number
 }
 
-export function forDomainEvent(
+function forDomainEvent(
   event: ScheduledEvent,
   context: Context,
   options?: LoggerOptions
@@ -127,7 +146,7 @@ export function forDomainEvent(
   }
 }
 
-export function forAPIGatewayEvent(
+function forAPIGatewayEvent(
   event: APIGatewayProxyEvent,
   context: Context,
   options?: LoggerOptions
@@ -143,7 +162,7 @@ export function forAPIGatewayEvent(
   }
 }
 
-export function forSQSRecord(
+function forSQSRecord(
   record: SQSRecord,
   context: Context,
   options?: LoggerOptions
@@ -159,7 +178,7 @@ export function forSQSRecord(
   }
 }
 
-export function forCloudFrontRequest(
+function forCloudFrontRequest(
   request: CloudFrontRequestEvent,
   context: Context,
   options?: LoggerOptions
@@ -175,7 +194,7 @@ export function forCloudFrontRequest(
   }
 }
 
-export function forSNS(
+function forSNS(
   event: SNSEvent,
   context: Context,
   options?: LoggerOptions
@@ -191,7 +210,7 @@ export function forSNS(
   }
 }
 
-export function forDynamoDBStream(
+function forDynamoDBStream(
   event: DynamoDBStreamEvent,
   context: Context,
   options?: LoggerOptions
@@ -216,6 +235,11 @@ export function fromContext(
   context: Context,
   options?: LoggerOptions
 ): Logger {
+  options = options || {}
+  options.timeoutAfterMs =
+    options.timeoutAfterMs ||
+    (context.getRemainingTimeInMillis && context.getRemainingTimeInMillis())
+
   try {
     return (
       forDomainEvent(event as ScheduledEvent, context, options) ||

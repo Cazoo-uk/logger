@@ -6,7 +6,7 @@ import { record, context } from './data/sqs'
 it('When logging in an SQS event context', async () => {
   const stream = sink()
 
-  const log = logger.forSQSRecord(record, context, { stream })
+  const log = logger.fromContext(record, context, { stream })
   log.info('Hello world')
 
   const result = await once(stream, 'data')
@@ -38,7 +38,7 @@ it('When using withContext to provide additional context information', () => {
 
   // ARRANGE
   const log = logger
-    .forSQSRecord(record, context, { stream })
+    .fromContext(record, context, { stream })
     .withContext({ vrm, usefulField })
 
   const results = []

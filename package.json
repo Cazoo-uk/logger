@@ -1,11 +1,11 @@
 {
   "name": "cazoo-logger",
-  "version": "5.0.2",
+  "version": "6.0.0-0",
   "description": "Codified standards for structured logging",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "yarn lint && jest",
+    "test": "jest",
     "watch": "jest --watch",
     "lint": "yarn eslint '**/*.ts'",
     "fix": "yarn eslint '**/*.ts' --fix",
