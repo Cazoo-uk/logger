@@ -2,6 +2,14 @@
 
 A highly opinionated structured logger for NodeJS Lambda functions.
 
+## Installation
+
+Cazoo Logger is available on [npm](https://www.npmjs.com/package/cazoo-logger)
+
+```
+npm i cazoo-logger
+```
+
 ## Basic usage
 
 Cazoo-logger builds logger instances from the event and context of your lambda handler. The constructed loggers write JSON blobs to stdout which include a `context` section.
