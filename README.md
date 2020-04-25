@@ -20,7 +20,7 @@ import Logger from 'cazoo-logger'
 
 function handle(event: CloudwatchEvent, context: Context) {
 
-  const log = Logger.forCloudwatchEvent(event, context)
+  const log = Logger.fromContext(event, context)
   log.info("handler invoked")
 }
 
