@@ -252,7 +252,9 @@ export function fromContext(
     )
   } catch (error) {
     const logger = empty()
-    logger.recordError(error, `The event is \n${ JSON.stringify(event) }\nand the context is \n{ JSON.stringify(context) }`)
+    logger.recordError(
+      error,
+     `The event is \n${ event }\nand the context is \n${ context }`)
     return logger
   }
 }
