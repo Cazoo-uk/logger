@@ -254,7 +254,8 @@ export function fromContext(
     const logger = empty()
     logger.recordError(
       error,
-     `The event is \n${event}\nand the context is \n${context}`)
+      `The event is \n${event}\nand the context is \n${context}`
+    )
     return logger
   }
 }
