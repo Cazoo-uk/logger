@@ -144,3 +144,11 @@ function handle(event: AwsGatewayProxyEvent, context: Context) {
 **/
 
 ```
+
+## Timeout logging
+
+The logger will log just before is going to timeout the lambda, so we can start putting information out about timeouts.
+
+Because of the way the lambda works, this has to be logged before the actual timeout happens. The time between the log and the timeout we call it buffer. The default buffer is 10ms. This default can be overriden using the environment variable `CAZOO_LOGGER_TIMEOUT_BUFFER_MS`.
+
+We just log an error indicating that the timeout happens, with type `lambda.timeout`.
