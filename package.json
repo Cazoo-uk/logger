@@ -1,6 +1,6 @@
 {
   "name": "cazoo-logger",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Codified standards for structured logging",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@types/pino": "^5.8.8",
-    "pino": "^5.12.6",
+    "pino": "^5.17.0",
     "pino-pretty": "^3.2.0",
     "uuid": "^3.3.2"
   },
