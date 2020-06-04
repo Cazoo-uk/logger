@@ -12,5 +12,5 @@ export const baseContext: Context = {
   fail: () => {},
   done: () => {},
   getRemainingTimeInMillis: () => 0,
-  memoryLimitInMB: 1,
+  memoryLimitInMB: '1',
 }
