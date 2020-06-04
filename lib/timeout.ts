@@ -1,4 +1,5 @@
 const defaultBufferMS = 10
+
 export const getTimeoutBuffer = (): number => {
   const sTimeoutBuffer =
     process.env.CAZOO_LOGGER_TIMEOUT_BUFFER_MS || `${defaultBufferMS}`
@@ -12,4 +13,13 @@ export const getTimeoutBuffer = (): number => {
   }
 
   return timeoutBuffer
+}
+
+export function done(this: TimeoutLogger) {
+  if (this.timeout) clearTimeout(this.timeout)
+}
+
+export interface TimeoutLogger {
+  done(): void
+  timeout?: NodeJS.Timeout
 }
