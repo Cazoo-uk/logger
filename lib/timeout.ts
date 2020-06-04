@@ -15,7 +15,7 @@ export const getTimeoutBuffer = (): number => {
   return timeoutBuffer
 }
 
-export function done(this: TimeoutLogger) {
+export function done(this: TimeoutLogger): void {
   if (this.timeout) clearTimeout(this.timeout)
 }
 

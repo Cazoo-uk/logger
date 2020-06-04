@@ -8,9 +8,15 @@ export const baseContext: Context = {
   logGroupName: '',
   logStreamName: '',
   callbackWaitsForEmptyEventLoop: true,
-  succeed: () => {},
-  fail: () => {},
-  done: () => {},
+  succeed: () => {
+    /* no-op */
+  },
+  fail: () => {
+    /* no-op */
+  },
+  done: () => {
+    /* no-op */
+  },
   getRemainingTimeInMillis: () => 0,
   memoryLimitInMB: '1',
 }
