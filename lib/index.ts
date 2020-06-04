@@ -22,7 +22,7 @@ import { isSQSRecord, makeSQSRecordContext } from './events/sqsRecord'
 import { isCloudFrontRequest, makeCloudFrontContext } from './events/cloudFront'
 import { makeSNSContext, isSNS } from './events/sns'
 import { isDynamoDbStream, makeDynamoDbContext } from './events/dynamoDbStream'
-import { getTimeoutBuffer, TimeoutLogger } from './timeout'
+import { done, getTimeoutBuffer, TimeoutLogger } from './timeout'
 
 const MINIMUM_VALID_TIMEOUT_MS = 50
 
@@ -90,10 +90,6 @@ function makeLogger(
   logger.timeout = timeout
 
   return logger
-}
-
-function done(this: Logger) {
-  if (undefined !== this.timeout) clearTimeout(this.timeout)
 }
 
 function withData(this: Logger, data: object): Logger {
