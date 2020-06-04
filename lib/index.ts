@@ -22,7 +22,7 @@ import { isSQSRecord, makeSQSRecordContext } from './events/sqsRecord'
 import { isCloudFrontRequest, makeCloudFrontContext } from './events/cloudFront'
 import { makeSNSContext, isSNS } from './events/sns'
 import { isDynamoDbStream, makeDynamoDbContext } from './events/dynamoDbStream'
-import { getTimeoutBuffer } from './timeout'
+import { getTimeoutBuffer, TimeoutLogger } from './timeout'
 
 const MINIMUM_VALID_TIMEOUT_MS = 50
 
@@ -46,12 +46,12 @@ export interface Contexts {
   withContext(data: object): Logger
 }
 
-function configureLambdaTimeout(logger: Logger, options?: LoggerOptions): void {
+function configureLambdaTimeout(logger: Logger, options?: LoggerOptions): NodeJS.Timeout | undefined {
   if (!options || !options.timeoutAfterMs) return
 
   const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
   if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
-    setTimeout(
+    return setTimeout(
       () => logger.error({ type: 'lambda.timeout' }, 'Lambda Timeout'),
       timeoutMs
     )
@@ -77,14 +77,21 @@ function makeLogger(
     withHttpResponse,
     recordErrorAsWarning,
     recordError,
+    done,
     /* eslint-enable @typescript-eslint/no-use-before-define */
   })
 
   const logger = instance as Logger
 
-  configureLambdaTimeout(logger, options)
+  const timeout = configureLambdaTimeout(logger, options)
+  logger.timeout = timeout
 
   return logger
+}
+
+function done (this: Logger) {
+    if (undefined !== this.timeout)
+        clearTimeout(this.timeout)
 }
 
 function withData(this: Logger, data: object): Logger {
@@ -262,4 +269,4 @@ export interface ErrorRecorder {
   recordErrorAsWarning(e: any, msg?: string): void
 }
 
-export type Logger = Pino.Logger & Contexts & ErrorRecorder
+export type Logger = Pino.Logger & Contexts & ErrorRecorder & TimeoutLogger
