@@ -46,7 +46,10 @@ export interface Contexts {
   withContext(data: object): Logger
 }
 
-function configureLambdaTimeout(logger: Logger, options?: LoggerOptions): NodeJS.Timeout | undefined {
+function configureLambdaTimeout(
+  logger: Logger,
+  options?: LoggerOptions
+): NodeJS.Timeout | undefined {
   if (!options || !options.timeoutAfterMs) return
 
   const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
@@ -89,9 +92,8 @@ function makeLogger(
   return logger
 }
 
-function done (this: Logger) {
-    if (undefined !== this.timeout)
-        clearTimeout(this.timeout)
+function done(this: Logger) {
+  if (undefined !== this.timeout) clearTimeout(this.timeout)
 }
 
 function withData(this: Logger, data: object): Logger {

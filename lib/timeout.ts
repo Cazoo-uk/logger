@@ -16,6 +16,6 @@ export const getTimeoutBuffer = (): number => {
 }
 
 export interface TimeoutLogger {
-    done (): void
-    timeout?: NodeJS.Timeout
+  done(): void
+  timeout?: NodeJS.Timeout
 }
