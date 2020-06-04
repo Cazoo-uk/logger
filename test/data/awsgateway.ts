@@ -30,6 +30,7 @@ const baseIdentity = {
   user: null,
   userAgent: null,
   userArn: null,
+  principalOrgId: 'my-org',
 }
 
 const baseRequestContext: APIGatewayEventRequestContext = {
@@ -43,6 +44,8 @@ const baseRequestContext: APIGatewayEventRequestContext = {
   requestTimeEpoch: 0,
   resourceId: '',
   resourcePath: '',
+  protocol: 'http',
+  authorizer: null,
 }
 
 const baseEvent: APIGatewayProxyEvent = {

@@ -380,9 +380,9 @@
     "@types/yargs" "^13.0.0"
 
 "@types/aws-lambda@^8.10.27":
-  version "8.10.34"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.34.tgz#85b13bf1810cb6118e7e5dbff2b3e4e301d13be7"
-  integrity sha512-ewsBa0SjQYywUpDwck+4n89T0pXcRtIfIXi0aK/3qIQJNBoGvX7AKqFya9FWKdoG7ZcK3Iarl4QjlJiAW7jgPg==
+  version "8.10.53"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.53.tgz#ad8d52a5f264f96b80a0d8c2e5cda1de30f2364b"
+  integrity sha512-zHIgKKqwcdeHkPMPKd47DedJ4b+Tv01VGosWtJDMa8s6cnx03IeNagFWEpoxVI+H34fOvxtbqecJddpuVFbU2w==
 
 "@types/babel__core@^7.1.0":
   version "7.1.3"
@@ -464,10 +464,10 @@
   resolved "https://registry.yarnpkg.com/@types/pino-std-serializers/-/pino-std-serializers-2.4.0.tgz#8cad99175cb79c2448f7455a2d32fb3fde29579c"
   integrity sha512-eAdu+NW1IkCdmp85SnhyKha+OOREQMT9lXaoICQxa7bhSauRiLzu3WSNt9Mf2piuJvWeXF/G0hGWHr63xNpIRA==
 
-"@types/pino@^5.8.8":
-  version "5.8.13"
-  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.8.13.tgz#01ea5c4faa4314cc4dd58b072bfc4f2a936bcf28"
-  integrity sha512-JPBkBtxCmwuWGR2rTiMZfocQ7EtNebkcUeIEoHJLB0NdHnKo1f9Jl8beFz9Br84q76NIv/c3nRLoakGui1ISkg==
+"@types/pino@5.17.0":
+  version "5.17.0"
+  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-5.17.0.tgz#850cd1d7c5a0e123f022badc2e2bb42d8d0efd9d"
+  integrity sha512-L5DBGFBRY4DKc7ufjZqV4J61ji9FSn4zKvQ5CUBbWi0gE0uOSNwDBpj1t7VwRwdmrpG3QlFxAeXgpViGUOS5Bg==
   dependencies:
     "@types/node" "*"
     "@types/pino-std-serializers" "*"
@@ -727,9 +727,9 @@ atob@^2.1.2:
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
 aws-lambda@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/aws-lambda/-/aws-lambda-1.0.5.tgz#9f40ca36da2aca8345230d6252c6e0da5a772dcf"
-  integrity sha512-rRBZT5mitbeb/qdqHrFiymFQ8k+uc8WlN2Y16OhsCEZzYHKRqFzRirO7gIozDohNuu7T27S6w88KBFpI0cS1NQ==
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/aws-lambda/-/aws-lambda-1.0.6.tgz#ba562478264646b51e9dc817d7d25ea468ed011b"
+  integrity sha512-Z9lmZBiDYejzjMWuQSDXuZWAqAun6vGt7WApB1r0f8tLNf0IlTGsH30qENfP1kXeTbbMgPpt1bPEeMZjYDTXxQ==
   dependencies:
     aws-sdk "*"
     commander "^3.0.2"
@@ -737,11 +737,11 @@ aws-lambda@^1.0.5:
     watchpack "^2.0.0-beta.10"
 
 aws-sdk@*:
-  version "2.663.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.663.0.tgz#003d8cc318635d1bf67deda586f5e5d583b7e384"
-  integrity sha512-xPOszNOaSXTRs8VGXaMbhTKXdlq2TlDRfFRVEGxkZrtow87hEIVZGAUSUme2e3GHqHUDnySwcufrUpUPUizOKQ==
+  version "2.689.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.689.0.tgz#f8833031afd773bfc9503f8d6325186a985d019c"
+  integrity sha512-l9kbgZtIbR9dux4JHoxZ3vDWAfGtp34KpDDf5cwYHC5jDTTJoe6XhBBlEDSruwKh1+5DONpSZWNVhDZ6E02ojg==
   dependencies:
-    buffer "4.9.1"
+    buffer "4.9.2"
     events "1.1.1"
     ieee754 "1.1.13"
     jmespath "0.15.0"
@@ -891,10 +891,10 @@ buffer-from@1.x, buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
-buffer@4.9.1:
-  version "4.9.1"
-  resolved "https://registry.yarnpkg.com/buffer/-/buffer-4.9.1.tgz#6d1bb601b07a4efced97094132093027c95bc298"
-  integrity sha1-bRu2AbB6TvztlwlBMgkwJ8lbwpg=
+buffer@4.9.2:
+  version "4.9.2"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-4.9.2.tgz#230ead344002988644841ab0244af8c44bbe3ef8"
+  integrity sha512-xq+q3SRMOxGivLhBNaUdC64hDTQwejJ+H0T/NB1XMtTVEwNTrfFF3gAxiyW0Bu/xWEGhjVKgUcMhCrUy2+uCWg==
   dependencies:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
@@ -1752,10 +1752,15 @@ globals@^11.1.0, globals@^11.7.0:
   resolved "https://registry.yarnpkg.com/globals/-/globals-11.12.0.tgz#ab8795338868a0babd8525758018c2a7eb95c42e"
   integrity sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==
 
-graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2:
+graceful-fs@^4.1.11, graceful-fs@^4.1.15:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
   integrity sha512-a30VEBm4PEdx1dRB7MFK7BejejvCvBronbLjht+sHuGYj8PHs7M/5Z+rt5lw551vZ7yfTCj4Vuyy3mSJytDWRQ==
+
+graceful-fs@^4.1.2:
+  version "4.2.4"
+  resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.4.tgz#2256bde14d3632958c465ebc96dc467ca07a29fb"
+  integrity sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw==
 
 growly@^1.3.0:
   version "1.3.0"
@@ -2533,9 +2538,9 @@ jmespath@0.15.0, jmespath@^0.15.0:
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
 js-yaml@^3.13.1:
-  version "3.13.1"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.13.1.tgz#aff151b30bfdfa8e49e05da22e7415e9dfa37847"
-  integrity sha512-YfbcO7jXDdyj0DGxYVSlSeQNHbD7XPWvrVWeVUujrQEoZzWJIRrCPoyk6kL6IAjAG2IolMK4T0hNUe0HOUs5Jw==
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.14.0.tgz#a7a34170f26a21bb162424d8adacb4113a69e482"
+  integrity sha512-/4IbIeHcD9VMHFqDR/gQ7EdZdLimOvW2DdcxFjdyyZ9NsbS+ccrXqVWDtab/lRl5AlUqmpBx8EhPaWR+OtY17A==
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
@@ -3150,7 +3155,7 @@ pino-std-serializers@^2.4.2:
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-2.4.2.tgz#cb5e3e58c358b26f88969d7e619ae54bdfcc1ae1"
   integrity sha512-WaL504dO8eGs+vrK+j4BuQQq6GLKeCCcHaMB2ItygzVURcL1CycwNEUHTD/lHFHs/NL5qAz2UKrjYWXKSf4aMQ==
 
-pino@^5.17.0:
+pino@5.17.0:
   version "5.17.0"
   resolved "https://registry.yarnpkg.com/pino/-/pino-5.17.0.tgz#b9def314e82402154f89a25d76a31f20ca84b4c8"
   integrity sha512-LqrqmRcJz8etUjyV0ddqB6OTUutCgQULPFg2b4dtijRHUsucaAdBgSUW58vY6RFSX+NT8963F+q0tM6lNwGShA==
