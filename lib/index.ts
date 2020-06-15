@@ -54,10 +54,27 @@ function configureLambdaTimeout(
 
   const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
   if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
-    return setTimeout(
-      () => logger.error({ type: 'lambda.timeout' }, 'Lambda Timeout'),
-      timeoutMs
-    )
+    return setTimeout(() => writeTimeoutLog(logger), timeoutMs)
+}
+
+function writeTimeoutLog(logger) {
+  logger.error(
+    {
+      type: 'lambda.timeout',
+
+      _aws: {
+        Timestamp: new Date().getTime(),
+        CloudwatchMetrics: [
+          {
+            Namespace: 'Cazoo',
+            Dimensions: [['Service'], ['Service', 'Function']],
+            Metrics: [{ Name: 'Timeouts' }],
+          },
+        ],
+      },
+    },
+    'Lambda Timeout'
+  )
 }
 
 function makeLogger(
