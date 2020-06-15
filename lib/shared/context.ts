@@ -48,7 +48,7 @@ export function makeContext(
       service:
         (options && options.service) ||
         process.env.CAZOO_LOGGER_SERVICE ||
-        ctx.logStreamName,
+        'Unknown',
     },
     ...extra,
   }

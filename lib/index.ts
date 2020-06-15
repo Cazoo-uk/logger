@@ -58,13 +58,17 @@ function configureLambdaTimeout(
 }
 
 function writeTimeoutLog(logger) {
+  const bindings: any = (logger as any).bindings()
   logger.error(
     {
+      Service: bindings.context.function.service || 'Unknown',
+      Function: bindings.context.function.name,
+      Timeouts: 1,
       type: 'lambda.timeout',
 
       _aws: {
         Timestamp: new Date().getTime(),
-        CloudwatchMetrics: [
+        CloudWatchMetrics: [
           {
             Namespace: 'Cazoo',
             Dimensions: [['Service'], ['Service', 'Function']],
