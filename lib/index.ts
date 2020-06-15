@@ -48,10 +48,12 @@ export interface Contexts {
 
 function writeTimeoutLog(logger) {
   const bindings: any = (logger as any).bindings()
+  const fn = (bindings.context && bindings.context.function) || {}
+
   logger.error(
     {
-      Service: bindings.context.function.service || 'Unknown',
-      Function: bindings.context.function.name,
+      Service: fn.service || 'Unknown',
+      Function: fn.name,
       Timeouts: 1,
       type: 'lambda.timeout',
 
