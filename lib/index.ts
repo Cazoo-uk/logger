@@ -46,17 +46,6 @@ export interface Contexts {
   withContext(data: object): Logger
 }
 
-function configureLambdaTimeout(
-  logger: Logger,
-  options?: LoggerOptions
-): NodeJS.Timeout | undefined {
-  if (!options || !options.timeoutAfterMs) return
-
-  const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
-  if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
-    return setTimeout(() => writeTimeoutLog(logger), timeoutMs)
-}
-
 function writeTimeoutLog(logger) {
   const bindings: any = (logger as any).bindings()
   logger.error(
@@ -79,6 +68,17 @@ function writeTimeoutLog(logger) {
     },
     'Lambda Timeout'
   )
+}
+
+function configureLambdaTimeout(
+  logger: Logger,
+  options?: LoggerOptions
+): NodeJS.Timeout | undefined {
+  if (!options || !options.timeoutAfterMs) return
+
+  const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
+  if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
+    return setTimeout(() => writeTimeoutLog(logger), timeoutMs)
 }
 
 function makeLogger(
