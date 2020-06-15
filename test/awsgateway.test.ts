@@ -21,7 +21,7 @@ it('When logging in an API Gateway event context', () => {
       function: {
         name: context.functionName,
         version: context.functionVersion,
-        service: context.logStreamName,
+        service: 'Unknown',
       },
       http: {
         path: event.path,
@@ -105,7 +105,7 @@ it('When logging a websocket request', () => {
       function: {
         name: context.functionName,
         version: context.functionVersion,
-        service: context.logStreamName,
+        service: 'Unknown',
       },
       http: {
         stage: websocketEvent.requestContext.stage,

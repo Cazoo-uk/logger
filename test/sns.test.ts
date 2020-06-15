@@ -20,7 +20,7 @@ it('When logging in an S3 SNS context', async () => {
       function: {
         name: context.functionName,
         version: context.functionVersion,
-        service: context.logStreamName,
+        service: 'Unknown',
       },
       event: {
         id: '916959af-5266-559e-befa-0c1576863e9a',
@@ -102,7 +102,7 @@ it('When logging in a non S3 SNS context', async () => {
       function: {
         name: context.functionName,
         version: context.functionVersion,
-        service: context.logStreamName,
+        service: 'Unknown',
       },
       event: {
         id: '95df01b4-ee98-5cb9-9903-4c221d41eb5e',

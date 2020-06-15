@@ -46,6 +46,32 @@ export interface Contexts {
   withContext(data: object): Logger
 }
 
+function writeTimeoutLog(logger) {
+  const bindings: any = (logger as any).bindings()
+  const fn = (bindings.context && bindings.context.function) || {}
+
+  logger.error(
+    {
+      Service: fn.service || 'Unknown',
+      Function: fn.name,
+      Timeouts: 1,
+      type: 'lambda.timeout',
+
+      _aws: {
+        Timestamp: new Date().getTime(),
+        CloudWatchMetrics: [
+          {
+            Namespace: 'Cazoo',
+            Dimensions: [['Service'], ['Service', 'Function']],
+            Metrics: [{ Name: 'Timeouts' }],
+          },
+        ],
+      },
+    },
+    'Lambda Timeout'
+  )
+}
+
 function configureLambdaTimeout(
   logger: Logger,
   options?: LoggerOptions
@@ -54,10 +80,7 @@ function configureLambdaTimeout(
 
   const timeoutMs = options.timeoutAfterMs - getTimeoutBuffer()
   if (timeoutMs > MINIMUM_VALID_TIMEOUT_MS)
-    return setTimeout(
-      () => logger.error({ type: 'lambda.timeout' }, 'Lambda Timeout'),
-      timeoutMs
-    )
+    return setTimeout(() => writeTimeoutLog(logger), timeoutMs)
 }
 
 function makeLogger(

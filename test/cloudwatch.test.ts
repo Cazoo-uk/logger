@@ -20,7 +20,7 @@ it('When logging in a cloudwatch event context', async () => {
       function: {
         name: context.functionName,
         version: context.functionVersion,
-        service: context.logStreamName,
+        service: 'Unknown',
       },
       event: {
         source: 'aws.events',

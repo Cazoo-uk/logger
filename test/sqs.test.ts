@@ -20,7 +20,7 @@ it('When logging in an SQS event context', async () => {
       function: {
         name: context.functionName,
         version: context.functionVersion,
-        service: context.logStreamName,
+        service: 'Unknown',
       },
       sqs: {
         source: record.eventSourceARN,
