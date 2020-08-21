@@ -1,15 +1,10 @@
 import split from 'split2'
 
-export function sink() {
-  const result = split(data => {
-    try {
-      return JSON.parse(data)
-    } catch (err) {
-      console.log(err)
-      console.log(data)
+export function sink(raw: boolean = false) {
+    if (raw){
+        return split()
     }
-  })
-  return result
+    return split(JSON.parse)
 }
 
 export function once(emitter, name) {
