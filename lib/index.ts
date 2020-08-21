@@ -109,9 +109,10 @@ function makeLogger(
 
   const logger = instance as Logger
 
-  const timeout = configureLambdaTimeout(logger, options)
-  logger.timeout = timeout
-
+  if (parent === undefined) {
+    const timeout = configureLambdaTimeout(logger, options)
+    logger.timeout = timeout
+  }
   return logger
 }
 
