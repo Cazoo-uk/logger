@@ -1,10 +1,10 @@
 import split from 'split2'
 
-export function sink(raw: boolean = false) {
-    if (raw){
-        return split()
-    }
-    return split(JSON.parse)
+export function sink(raw = false) {
+  if (raw) {
+    return split()
+  }
+  return split(JSON.parse)
 }
 
 export function once(emitter, name) {
