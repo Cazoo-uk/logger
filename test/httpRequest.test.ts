@@ -1,6 +1,6 @@
 import * as logger from '../lib'
 import { sink } from './helper'
-import { event, context } from './data/httpRequest'
+import { event, context } from './data/sns'
 
 it('When recording an outbound HTTP request', () => {
   const stream = sink()

@@ -15,7 +15,8 @@ export function eventRecorder(stream: any) {
   ) {
     const ts = Date.now()
     stream.write(
-        `CZEV {"ts": ${ts}, "req": "${context.request_id}", "event": {"type": "${event['detail-type']}", "id": "${event.id}"}, "node": {"name": "${context.function.name}", "svc": "${context.function.service}"}, "dir": "${dir}" }\n`)
+      `CZEV {"ts": ${ts}, "req": "${context.request_id}", "event": {"type": "${event['detail-type']}", "id": "${event.id}"}, "node": {"name": "${context.function.name}", "svc": "${context.function.service}"}, "dir": "${dir}" }\n`
+    )
   }
   return _write
 }
