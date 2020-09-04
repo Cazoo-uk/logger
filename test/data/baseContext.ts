@@ -7,7 +7,7 @@ export const baseContext: Context = {
   awsRequestId: '',
   logGroupName: '',
   logStreamName: '',
-  callbackWaitsForEmptyEventLoop: true,
+  callbackWaitsForEmptyEventLoop: false,
   succeed: () => {
     /* no-op */
   },
