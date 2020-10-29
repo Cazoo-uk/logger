@@ -144,8 +144,6 @@ describe('Preemptive logging of lambda timeouts', () => {
 
       jest.advanceTimersByTime(timeToTriggerTimeout)
       expect(stream.read()).toBeNull()
-
-      // calling `withData` will recreate the logger - potentially triggering the lambda timout setup code
     })
   })
 
