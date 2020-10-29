@@ -130,6 +130,21 @@ describe('Preemptive logging of lambda timeouts', () => {
       jest.advanceTimersByTime(timeToTriggerTimeout)
       expect(stream.read()).toBeNull()
     })
+
+    it('should be able to "done" a timeout from a child logger', () => {
+      const log = logger
+        .fromContext(event, {} as Context, {
+          stream,
+          level,
+          timeoutAfterMs: timeToTriggerTimeout,
+        })
+        .withData({ ...event })
+
+      log.done()
+
+      jest.advanceTimersByTime(timeToTriggerTimeout)
+      expect(stream.read()).toBeNull()
+    })
   })
 
   describe('when not providing the timeout and not providing a useful context', () => {
