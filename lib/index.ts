@@ -271,7 +271,11 @@ export function fromContext(
 
   try {
     return (
-      forDomainEvent(event as EventBridgeEvent<string, any>, context, options) ||
+      forDomainEvent(
+        event as EventBridgeEvent<string, any>,
+        context,
+        options
+      ) ||
       forAPIGatewayEvent(event as APIGatewayProxyEvent, context, options) ||
       forSNS(event as SNSEvent, context, options) ||
       forSQSRecord(event as SQSRecord, context, options) ||
