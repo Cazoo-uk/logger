@@ -2,7 +2,6 @@ import { Context } from 'aws-lambda'
 import { Callback } from 'aws-lambda/handler'
 import * as Logger from './index'
 import { AnyEvent } from './events/anyEvent'
-import { LoggerMock } from './logger-mock'
 
 export interface ContextWithLogger extends Context {
   logger: Logger.Logger
@@ -21,16 +20,8 @@ export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
   context,
   callback
 ): Promise<TResult> => {
-  let logger
 
-  if (
-    process.env.JEST_WORKER_ID === undefined ||
-    process.env.LOGGER_MOCK_PRINT_LOGS === 'true'
-  ) {
-    logger = Logger.fromContext(event, context)
-  } else {
-    logger = LoggerMock.initInstance()
-  }
+  const logger = Logger.fromContext(event, context)
 
   let result
   try {
