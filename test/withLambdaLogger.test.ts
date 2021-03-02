@@ -185,6 +185,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
       if (error) mockErrorCb(error)
       if (success) mockSuccessCb(success)
     }
+
     describe('when the handler calls the success callback', () => {
       it('should return whatever the handler will return', done => {
         const handler: Handler = (_event, _context, callback) => {
