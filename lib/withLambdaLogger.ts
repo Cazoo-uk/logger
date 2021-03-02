@@ -30,16 +30,23 @@ export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
   event,
   context,
   callback
-): Promise<TResult> => {
+): Promise<TResult> => { // TODO add void
   const loggerFactory = options?.loggerFactory || fromContext
   const logger = loggerFactory(event, context, options)
 
-  let result
-  try {
-    result = await handler(event, { ...context, logger }, callback)
-  } finally {
-    logger.done()
+  const myCallback = (error, success) => {
+    if (error) {
+      logger.done()
+      callback(error)
+    }
+    if (success) {
+      logger.done()
+      callback(null, success)
+    }
   }
 
-  return result
+  const result = handler(event, { ...context, logger }, myCallback)
+  if (result instanceof Promise) {
+    return result.finally(() => logger.done())
+  }
 }

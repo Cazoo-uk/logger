@@ -20,28 +20,27 @@ jest.mock('../lib', () => ({
 describe('augmenting lambda context with a correctly initialised helper', () => {
   const mockedEvent = { source: 'a-service' } as AnyEvent
   const mockedContext: Context = { functionName: 'a-lambda' } as Context
-  const mockedCallback: Callback = () => undefined
   const handler: HandlerWithLogger = jest.fn()
 
   describe('initialise a logger', () => {
     it('should call the handler with the same args it receives', () => {
       const augmentedHandler = withLambdaLogger(handler)
-      augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      augmentedHandler(mockedEvent, mockedContext, undefined)
 
       expect(handler).toHaveBeenCalledWith(
         mockedEvent,
         expect.objectContaining(mockedContext),
-        mockedCallback
+        expect.anything()
       )
     })
 
     it('should pass the initialised logger to the handler through the context', async () => {
       const augmentedHandler = withLambdaLogger(handler)
-      await augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      await augmentedHandler(mockedEvent, mockedContext, undefined)
       expect(handler).toHaveBeenCalledWith(
         mockedEvent,
         expect.objectContaining({ logger: mockedLogger }),
-        mockedCallback
+        expect.anything()
       )
     })
 
@@ -50,7 +49,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
 
       it('should provide an interface for passing options to the logger', () => {
         const augmentedHandler = withLambdaLogger(handler, options)
-        augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+        augmentedHandler(mockedEvent, mockedContext, undefined)
 
         expect(fromContext).toHaveBeenCalledWith(
           mockedEvent,
@@ -74,7 +73,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
           handler,
           optionsWithLoggerFactory
         )
-        await augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+        await augmentedHandler(mockedEvent, mockedContext, undefined)
 
         expect(mockedCustomLoggerFactory).toHaveBeenCalledWith(
           mockedEvent,
@@ -92,14 +91,14 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
       const augmentedHandler = withLambdaLogger(handler)
 
       await expect(
-        augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+        augmentedHandler(mockedEvent, mockedContext, undefined)
       ).resolves.toEqual('the response')
     })
 
     it('should close the logger when the lambda returns', async () => {
       const handler: Handler = () => Promise.resolve('the response')
       const augmentedHandler = withLambdaLogger(handler)
-      await augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      await augmentedHandler(mockedEvent, mockedContext, undefined)
 
       expect(mockedLogger.done).toBeCalled()
     })
@@ -116,13 +115,13 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
 
       it('should throw whatever the lambda throws', async () => {
         await expect(
-          augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+          augmentedHandler(mockedEvent, mockedContext, undefined)
         ).rejects.toThrow('Doh!')
       })
 
       it('should leave the logging responsibility to the consumer', async () => {
         try {
-          await augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+          await augmentedHandler(mockedEvent, mockedContext, undefined)
           fail()
         } catch {
           expect(mockedLogger.recordError).not.toBeCalled()
@@ -131,7 +130,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
 
       it('should close the logger', async () => {
         try {
-          await augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+          await augmentedHandler(mockedEvent, mockedContext, undefined)
           fail()
         } catch {
           expect(mockedLogger.done).toBeCalled()
@@ -141,4 +140,23 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
   })
 
   it.todo('should support the callback interface')
+  describe('using the Lambda handler callback interface', () => {
+    const callbackSuccessMock = jest.fn()
+    const callbackFailureMock = jest.fn()
+
+    const mockedCallback: Callback = (error, success) => {
+      if (error) callbackFailureMock(error)
+      if (success) callbackSuccessMock(success)
+    }
+
+    it('should return whatever the handler will return', done => {
+      const handler: Handler = (_event, _context, callback) => {
+        callback(null, 'the response')
+        expect(callbackSuccessMock).toBeCalledWith('the response')
+        done()
+      }
+      const augmentedHandler = withLambdaLogger(handler)
+      augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+    })
+  })
 })
