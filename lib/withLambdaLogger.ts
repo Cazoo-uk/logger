@@ -34,20 +34,14 @@ export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
   const loggerFactory = options?.loggerFactory || fromContext
   const logger = loggerFactory(event, context, options)
 
-  const myCallback = (error, success) => {
-    if (error) {
-      logger.done()
-      callback(error)
-    }
-    if (success) {
-      logger.done()
-      callback(null, success)
-    }
+  const proxyCallback: Callback<TResult> = (...args) => {
+    logger.done()
+    callback(...args)
   }
 
   let result
   try {
-    result = handler(event, { ...context, logger }, myCallback)
+    result = handler(event, { ...context, logger }, proxyCallback)
   } finally {
     logger.done()
   }
