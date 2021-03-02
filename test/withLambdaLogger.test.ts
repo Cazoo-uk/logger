@@ -158,5 +158,15 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
       const augmentedHandler = withLambdaLogger(handler)
       augmentedHandler(mockedEvent, mockedContext, mockedCallback)
     })
+
+    it('should close the logger when the lambda returns', done => {
+      const handler: Handler = (_event, _context, callback) => {
+        callback(null, 'the response')
+        expect(mockedLogger.done).toBeCalled()
+        done()
+      }
+      const augmentedHandler = withLambdaLogger(handler)
+      augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+    })
   })
 })
