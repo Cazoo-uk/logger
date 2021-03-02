@@ -85,6 +85,45 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
     })
   })
 
+  describe('when the handler throws', () => {
+    let augmentedHandler: Handler
+    const myError = new Error('Doh!')
+
+    beforeEach(() => {
+      const handler: Handler = () => {
+        throw myError
+      }
+      augmentedHandler = withLambdaLogger(handler)
+    })
+
+    it('should thrown whatever has been thrown', () => {
+      try {
+        augmentedHandler(mockedEvent, mockedContext, undefined)
+        fail()
+      } catch (e) {
+        expect(e).toBe(myError)
+      }
+    })
+
+    it('should leave the logging responsibility to the consumer', () => {
+      try {
+        augmentedHandler(mockedEvent, mockedContext, undefined)
+        fail()
+      } catch {
+        expect(mockedLogger.recordError).not.toBeCalled()
+      }
+    })
+
+    it('should close the logger', () => {
+      try {
+        augmentedHandler(mockedEvent, mockedContext, undefined)
+        fail()
+      } catch {
+        expect(mockedLogger.done).toBeCalled()
+      }
+    })
+  })
+
   describe('using the Lambda handler promise interface', () => {
     describe('when the handler promise resolves', () => {
       it('should return whatever the handler will return', async () => {

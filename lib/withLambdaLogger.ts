@@ -45,7 +45,13 @@ export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
     }
   }
 
-  const result = handler(event, { ...context, logger }, myCallback)
+  let result
+  try {
+    result = handler(event, { ...context, logger }, myCallback)
+  } finally {
+    logger.done()
+  }
+
   if (result instanceof Promise) {
     return result.finally(() => logger.done())
   }
