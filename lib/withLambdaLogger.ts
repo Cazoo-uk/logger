@@ -1,4 +1,4 @@
-import { Context } from 'aws-lambda'
+import { Context, Handler } from 'aws-lambda'
 import { Callback } from 'aws-lambda/handler'
 import { AnyEvent } from './events/anyEvent'
 import { fromContext, Logger, LoggerOptions } from './index'
@@ -26,7 +26,7 @@ export interface WithLambdaLoggerOptions extends LoggerOptions {
 export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
   handler: HandlerWithLogger<TEvent, TResult>,
   options?: WithLambdaLoggerOptions
-): HandlerWithLogger<TEvent, TResult> => async (
+): Handler<TEvent, TResult> => async (
   event,
   context,
   callback
