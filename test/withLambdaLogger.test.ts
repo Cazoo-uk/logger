@@ -1,6 +1,7 @@
 import { HandlerWithLogger, withLambdaLogger } from '../lib/withLambdaLogger'
 import { Handler } from 'aws-lambda'
 import { AnyEvent } from '../lib/events/anyEvent'
+import { fromContext } from '../lib'
 
 const mockedLogger = {
   done: jest.fn(),
@@ -36,6 +37,19 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
 
     const augmentedHandler = withLambdaLogger(handler as Handler)
     augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+  })
+
+  it('should provide an interface for passing options to the logger', () => {
+    const handler: HandlerWithLogger = jest.fn()
+    const options = {}
+    const augmentedHandler = withLambdaLogger(handler, options)
+    augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+
+    expect(fromContext).toHaveBeenCalledWith(
+      mockedEvent,
+      mockedContext,
+      options
+    )
   })
 
   describe('using the Lambda handler promise interface', () => {

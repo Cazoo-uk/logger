@@ -14,14 +14,14 @@ export type HandlerWithLogger<TEvent = any, TResult = any> = (
 ) => void | Promise<TResult>
 
 export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
-  handler: HandlerWithLogger<TEvent, TResult>
+  handler: HandlerWithLogger<TEvent, TResult>,
+  options?: Logger.LoggerOptions
 ): HandlerWithLogger<TEvent, TResult> => async (
   event,
   context,
   callback
 ): Promise<TResult> => {
-
-  const logger = Logger.fromContext(event, context)
+  const logger = Logger.fromContext(event, context, options)
 
   let result
   try {
