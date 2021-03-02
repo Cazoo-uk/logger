@@ -28,8 +28,8 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
 
     expect(handler).toHaveBeenCalledWith(
       mockedEvent,
-      expect.objectContaining(mockedCallback),
-      mockedContext
+      expect.objectContaining(mockedContext),
+      mockedCallback
     )
   })
 

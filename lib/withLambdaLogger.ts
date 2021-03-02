@@ -37,10 +37,8 @@ export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
   let result
   try {
     result = await handler(event, { ...context, logger }, callback)
+  } finally {
     logger.done()
-  } catch (e) {
-    logger.done()
-    throw e
   }
 
   return result
