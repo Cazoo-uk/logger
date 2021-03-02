@@ -139,7 +139,6 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
     })
   })
 
-  it.todo('should support the callback interface')
   describe('using the Lambda handler callback interface', () => {
     const callbackSuccessMock = jest.fn()
     const callbackFailureMock = jest.fn()
@@ -167,6 +166,18 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
       }
       const augmentedHandler = withLambdaLogger(handler)
       augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+    })
+
+    describe('when the Lambda throws', () => {
+      it('should return whatever error the lambda returns', done => {
+        const handler: Handler = (_event, _context, callback) => {
+          callback('the error')
+          expect(callbackFailureMock).toBeCalledWith('the error')
+          done()
+        }
+        const augmentedHandler = withLambdaLogger(handler)
+        augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      })
     })
   })
 })
