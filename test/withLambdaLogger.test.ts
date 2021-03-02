@@ -1,5 +1,4 @@
 import {
-  HandlerWithLogger,
   LoggerFactory,
   withLambdaLogger,
   WithLambdaLoggerOptions,
@@ -20,7 +19,7 @@ jest.mock('../lib', () => ({
 describe('augmenting lambda context with a correctly initialised helper', () => {
   const mockedEvent = { source: 'a-service' } as AnyEvent
   const mockedContext: Context = { functionName: 'a-lambda' } as Context
-  const handler: HandlerWithLogger = jest.fn()
+  const handler = jest.fn()
 
   describe('initialise a logger', () => {
     it('should call the handler with the same args it receives', () => {
@@ -63,7 +62,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
           done: jest.fn(),
         }
         const mockedCustomLoggerFactory = jest.fn(() => mockedCustomLogger)
-        const handler: HandlerWithLogger = () => Promise.resolve()
+        const handler = () => Promise.resolve()
         const optionsWithLoggerFactory: WithLambdaLoggerOptions = {
           ...options,
           loggerFactory: (mockedCustomLoggerFactory as any) as LoggerFactory,
