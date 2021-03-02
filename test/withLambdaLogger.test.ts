@@ -1,4 +1,8 @@
-import { HandlerWithLogger, withLambdaLogger } from '../lib/withLambdaLogger'
+import {
+  HandlerWithLogger,
+  LoggerFactory,
+  withLambdaLogger,
+} from '../lib/withLambdaLogger'
 import { Handler } from 'aws-lambda'
 import { AnyEvent } from '../lib/events/anyEvent'
 import { fromContext } from '../lib'
@@ -50,6 +54,27 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
       mockedContext,
       options
     )
+  })
+
+  it('should provide an option to hook in a custom logger', async () => {
+    const mockedCustomLogger = {
+      done: jest.fn(),
+    }
+    const mockedCustomLoggerFactory = jest.fn(() => mockedCustomLogger)
+    const handler: HandlerWithLogger = () => Promise.resolve()
+    const options = {
+      loggerFactory: (mockedCustomLoggerFactory as any) as LoggerFactory,
+    }
+
+    const augmentedHandler = withLambdaLogger(handler, options)
+    await augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+
+    expect(mockedCustomLoggerFactory).toHaveBeenCalledWith(
+      mockedEvent,
+      mockedContext,
+      options
+    )
+    expect(mockedCustomLogger.done).toHaveBeenCalled()
   })
 
   describe('using the Lambda handler promise interface', () => {

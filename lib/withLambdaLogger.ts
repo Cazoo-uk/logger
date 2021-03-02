@@ -1,10 +1,10 @@
 import { Context } from 'aws-lambda'
 import { Callback } from 'aws-lambda/handler'
-import * as Logger from './index'
 import { AnyEvent } from './events/anyEvent'
+import { fromContext, Logger, LoggerOptions } from './index'
 
 export interface ContextWithLogger extends Context {
-  logger: Logger.Logger
+  logger: Logger
 }
 
 export type HandlerWithLogger<TEvent = any, TResult = any> = (
@@ -13,15 +13,26 @@ export type HandlerWithLogger<TEvent = any, TResult = any> = (
   callback: Callback<TResult>
 ) => void | Promise<TResult>
 
+export type LoggerFactory = (
+  event: AnyEvent,
+  context: Context,
+  options?: LoggerOptions
+) => Logger
+
+export interface WithLambdaLoggerOptions extends LoggerOptions {
+  loggerFactory?: LoggerFactory
+}
+
 export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
   handler: HandlerWithLogger<TEvent, TResult>,
-  options?: Logger.LoggerOptions
+  options?: WithLambdaLoggerOptions
 ): HandlerWithLogger<TEvent, TResult> => async (
   event,
   context,
   callback
 ): Promise<TResult> => {
-  const logger = Logger.fromContext(event, context, options)
+  const loggerFactory = options?.loggerFactory || fromContext
+  const logger = loggerFactory(event, context, options)
 
   let result
   try {
