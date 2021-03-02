@@ -134,7 +134,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
         ).resolves.toEqual('the response')
       })
 
-      it('should close the logger when the lambda returns', async () => {
+      it('should close the logger', async () => {
         const handler: Handler = () => Promise.resolve('the response')
         const augmentedHandler = withLambdaLogger(handler)
         await augmentedHandler(mockedEvent, mockedContext, undefined)
@@ -197,7 +197,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
         augmentedHandler(mockedEvent, mockedContext, mockedCallback)
       })
 
-      it('should close the logger when the lambda returns', done => {
+      it('should close the logger', done => {
         const handler: Handler = (_event, _context, callback) => {
           callback(null, 'the response')
           expect(mockedLogger.done).toBeCalled()
