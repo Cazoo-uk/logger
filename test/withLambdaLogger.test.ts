@@ -30,7 +30,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
       expect(handler).toHaveBeenCalledWith(
         mockedEvent,
         expect.objectContaining(mockedContext),
-        expect.anything(),
+        expect.anything()
       )
     })
 
@@ -40,7 +40,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
       expect(handler).toHaveBeenCalledWith(
         mockedEvent,
         expect.objectContaining({ logger: mockedLogger }),
-        expect.anything(),
+        expect.anything()
       )
     })
 
@@ -54,7 +54,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
         expect(fromContext).toHaveBeenCalledWith(
           mockedEvent,
           mockedContext,
-          options,
+          options
         )
       })
 
@@ -71,14 +71,14 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
 
         const augmentedHandler = withLambdaLogger(
           handler,
-          optionsWithLoggerFactory,
+          optionsWithLoggerFactory
         )
         await augmentedHandler(mockedEvent, mockedContext, undefined)
 
         expect(mockedCustomLoggerFactory).toHaveBeenCalledWith(
           mockedEvent,
           mockedContext,
-          optionsWithLoggerFactory,
+          optionsWithLoggerFactory
         )
         expect(mockedCustomLogger.done).toHaveBeenCalled()
       })
@@ -131,7 +131,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
         const augmentedHandler = withLambdaLogger(handler)
 
         await expect(
-          augmentedHandler(mockedEvent, mockedContext, undefined),
+          augmentedHandler(mockedEvent, mockedContext, undefined)
         ).resolves.toEqual('the response')
       })
 
@@ -154,7 +154,7 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
 
       it('should return whatever has been rejected', async () => {
         await expect(
-          augmentedHandler(mockedEvent, mockedContext, undefined),
+          augmentedHandler(mockedEvent, mockedContext, undefined)
         ).rejects.toEqual('Doh!')
       })
 
