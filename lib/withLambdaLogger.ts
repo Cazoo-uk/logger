@@ -26,11 +26,11 @@ export interface WithLambdaLoggerOptions extends LoggerOptions {
 export const withLambdaLogger = <TEvent extends AnyEvent, TResult>(
   handler: HandlerWithLogger<TEvent, TResult>,
   options?: WithLambdaLoggerOptions
-): Handler<TEvent, TResult> => async (
+): Handler<TEvent, TResult> => (
   event,
   context,
   callback
-): Promise<TResult> => { // TODO add void
+): void | Promise<TResult> => {
   const loggerFactory = options?.loggerFactory || fromContext
   const logger = loggerFactory(event, context, options)
 

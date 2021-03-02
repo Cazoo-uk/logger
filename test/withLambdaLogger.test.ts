@@ -86,37 +86,37 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
   })
 
   describe('using the Lambda handler promise interface', () => {
-    it('should return whatever the handler will return', async () => {
-      const handler = () => Promise.resolve('the response')
-      const augmentedHandler = withLambdaLogger(handler)
+    describe('when the handler promise resolves', () => {
+      it('should return whatever the handler will return', async () => {
+        const handler = () => Promise.resolve('the response')
+        const augmentedHandler = withLambdaLogger(handler)
 
-      await expect(
-        augmentedHandler(mockedEvent, mockedContext, undefined),
-      ).resolves.toEqual('the response')
+        await expect(
+          augmentedHandler(mockedEvent, mockedContext, undefined),
+        ).resolves.toEqual('the response')
+      })
+
+      it('should close the logger when the lambda returns', async () => {
+        const handler: Handler = () => Promise.resolve('the response')
+        const augmentedHandler = withLambdaLogger(handler)
+        await augmentedHandler(mockedEvent, mockedContext, undefined)
+
+        expect(mockedLogger.done).toBeCalled()
+      })
     })
 
-    it('should close the logger when the lambda returns', async () => {
-      const handler: Handler = () => Promise.resolve('the response')
-      const augmentedHandler = withLambdaLogger(handler)
-      await augmentedHandler(mockedEvent, mockedContext, undefined)
-
-      expect(mockedLogger.done).toBeCalled()
-    })
-
-    describe('when the Lambda throws', () => {
+    describe('when the handler promise rejects', () => {
       let augmentedHandler: Handler
 
       beforeEach(() => {
-        const handler: Handler = () => {
-          throw new Error('Doh!')
-        }
+        const handler: Handler = () => Promise.reject('Doh!')
         augmentedHandler = withLambdaLogger(handler)
       })
 
-      it('should throw whatever the lambda throws', async () => {
+      it('should return whatever has been rejected', async () => {
         await expect(
           augmentedHandler(mockedEvent, mockedContext, undefined),
-        ).rejects.toThrow('Doh!')
+        ).rejects.toEqual('Doh!')
       })
 
       it('should leave the logging responsibility to the consumer', async () => {
@@ -140,39 +140,40 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
   })
 
   describe('using the Lambda handler callback interface', () => {
-    const callbackSuccessMock = jest.fn()
-    const callbackFailureMock = jest.fn()
+    const mockSuccessCb = jest.fn()
+    const mockErrorCb = jest.fn()
 
     const mockedCallback: Callback = (error, success) => {
-      if (error) callbackFailureMock(error)
-      if (success) callbackSuccessMock(success)
+      if (error) mockErrorCb(error)
+      if (success) mockSuccessCb(success)
     }
+    describe('when the handler calls the success callback', () => {
+      it('should return whatever the handler will return', done => {
+        const handler: Handler = (_event, _context, callback) => {
+          callback(null, 'the response')
+          expect(mockSuccessCb).toBeCalledWith('the response')
+          done()
+        }
+        const augmentedHandler = withLambdaLogger(handler)
+        augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      })
 
-    it('should return whatever the handler will return', done => {
-      const handler: Handler = (_event, _context, callback) => {
-        callback(null, 'the response')
-        expect(callbackSuccessMock).toBeCalledWith('the response')
-        done()
-      }
-      const augmentedHandler = withLambdaLogger(handler)
-      augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      it('should close the logger when the lambda returns', done => {
+        const handler: Handler = (_event, _context, callback) => {
+          callback(null, 'the response')
+          expect(mockedLogger.done).toBeCalled()
+          done()
+        }
+        const augmentedHandler = withLambdaLogger(handler)
+        augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      })
     })
 
-    it('should close the logger when the lambda returns', done => {
-      const handler: Handler = (_event, _context, callback) => {
-        callback(null, 'the response')
-        expect(mockedLogger.done).toBeCalled()
-        done()
-      }
-      const augmentedHandler = withLambdaLogger(handler)
-      augmentedHandler(mockedEvent, mockedContext, mockedCallback)
-    })
-
-    describe('when the Lambda throws', () => {
-      it('should return whatever error the lambda returns', done => {
+    describe('when the handler calls the error callback', () => {
+      it('should return whatever error the handler returns', done => {
         const handler: Handler = (_event, _context, callback) => {
           callback('the error')
-          expect(callbackFailureMock).toBeCalledWith('the error')
+          expect(mockErrorCb).toBeCalledWith('the error')
           done()
         }
         const augmentedHandler = withLambdaLogger(handler)
@@ -189,6 +190,15 @@ describe('augmenting lambda context with a correctly initialised helper', () => 
         augmentedHandler(mockedEvent, mockedContext, mockedCallback)
       })
 
+      it('should close the logger', done => {
+        const handler: Handler = (_event, _context, callback) => {
+          callback('the error')
+          expect(mockedLogger.done).toBeCalled()
+          done()
+        }
+        const augmentedHandler = withLambdaLogger(handler)
+        augmentedHandler(mockedEvent, mockedContext, mockedCallback)
+      })
     })
   })
 })
