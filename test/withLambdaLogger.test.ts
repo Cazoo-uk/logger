@@ -1,11 +1,11 @@
+import { Callback, Context, Handler } from 'aws-lambda'
+import { AnyEvent } from '../lib/events/anyEvent'
 import {
+  fromContext,
   LoggerFactory,
   withLambdaLogger,
   WithLambdaLoggerOptions,
-} from '../lib/withLambdaLogger'
-import { Callback, Context, Handler } from 'aws-lambda'
-import { AnyEvent } from '../lib/events/anyEvent'
-import { fromContext } from '../lib'
+} from '../lib'
 
 const mockedLogger = {
   done: jest.fn(),

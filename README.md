@@ -164,7 +164,7 @@ It accepts an option object that will be passed to the instantiated logger.
 
 ```
 import { CloudwatchEvent, Context} from 'aws-lambda'
-import { withLambdaLogger } from 'cazoo-logger/withLambdaLogger'
+import { withLambdaLogger } from 'cazoo-logger'
 
 const loggerOptions = {
    // ...

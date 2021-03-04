@@ -292,3 +292,11 @@ export interface ErrorRecorder {
 }
 
 export type Logger = Pino.Logger & Contexts & ErrorRecorder & TimeoutLogger
+
+export {
+  withLambdaLogger,
+  WithLambdaLoggerOptions,
+  HandlerWithLogger,
+  LoggerFactory,
+  ContextWithLogger,
+} from './withLambdaLogger'
