@@ -157,3 +157,46 @@ We just log an error indicating that the timeout happens, with type `lambda.time
 WARNING! 🚨🚨🚨
 
 We need to manually cancel the timeout by calling `logger.done()` before returning the lambda, otherwise we will get timeouts from previous executions when the lambda has been re-executed in a warmed start environment.
+
+## withLambdaLogger
+`withLambdaLogger` is an HOF that provides a correctly instantiated logger in the handler context.
+It accepts an option object that will be passed to the instantiated logger.
+
+```
+import { CloudwatchEvent, Context} from 'aws-lambda'
+import { withLambdaLogger } from 'cazoo-logger/withLambdaLogger'
+
+const loggerOptions = {
+   // ...
+}
+export const lambdaHanlder = withLambdaLogger(handle, loggerOptions)
+
+function handle(event: CloudwatchEvent, context: Context) {
+  const log = context.logger
+  log.info("handler invoked")
+}
+
+/* 
+{
+    level: 'info',
+    msg: 'handler invoked',
+    v: 1,
+    context: {
+      request_id: "abc234",
+      account_id: 01246545248719,
+      function: {
+        name: "my-handler",
+        version: context.functionVersion,
+        service: context.logStreamName,
+        stage: event.requestContext.stage
+      },
+      event: {
+        source: "aws.events",
+        type: "Scheduled Event",
+        id: "89170034-9c85-4ae4-b9df-04207ab07dad"
+      }
+    }
+  }
+*/
+```
+
