@@ -24,6 +24,14 @@ import { makeSNSContext, isSNS } from './events/sns'
 import { isDynamoDbStream, makeDynamoDbContext } from './events/dynamoDbStream'
 import { done, getTimeoutBuffer, TimeoutLogger } from './timeout'
 
+export {
+  withLambdaLogger,
+  WithLambdaLoggerOptions,
+  HandlerWithLogger,
+  LoggerFactory,
+  ContextWithLogger,
+} from './withLambdaLogger'
+
 const MINIMUM_VALID_TIMEOUT_MS = 50
 
 export interface HttpResponseContext {
