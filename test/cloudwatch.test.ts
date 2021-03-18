@@ -3,130 +3,74 @@ import * as logger from '../lib'
 import { sink, once } from './helper'
 import { event, context } from './data/cloudwatch'
 
-it('When logging in a cloudwatch event context', async () => {
-  const stream = sink()
-
-  const log = logger.fromContext(event, context, { stream })
-  log.info('Hello world')
-
-  const result = await once(stream, 'data')
-
-  expect(result).toStrictEqual({
-    level: 'info',
-    v: 1,
-    context: {
-      request_id: context.awsRequestId,
-      account_id: 'account-id',
-      function: {
-        name: context.functionName,
-        version: context.functionVersion,
-        service: 'Unknown',
-      },
-      event: {
-        source: 'aws.events',
-        type: 'Scheduled Event',
-        id: event.id,
-      },
-    },
-    msg: 'Hello world',
-  })
-})
-
-it('When using withContext to provide additional context information', async () => {
-  const vrm = 'ABCDEF'
-  const usefulField = 123
-  const stream = sink()
-
-  // ARRANGE
-  const log = logger
-    .fromContext(event, context, { stream })
-    .withContext({ vrm, usefulField })
-
+describe('When logging in a cloudwatch event context', () => {
   const results = []
-  stream.on('data', args => {
-    const {
-      msg,
-      context: { vrm, usefulField },
-    } = args
-    results.push({
-      message: msg,
+  const now = Date.now()
+  let dateSpy
+
+  beforeAll(async () => {
+    dateSpy = jest.spyOn(Date, 'now').mockImplementation(() => now)
+    const stream = sink(true)
+    const p = new Promise((resolve, reject) => {
+      stream.on('data', data => {
+        results.push(data)
+        if (results.length == 2) resolve()
+      })
+    })
+
+    const log = logger.fromContext(event, context, { stream })
+    log.info('Hello world')
+    await p
+  })
+
+  afterAll(() => {
+    dateSpy.mockRestore()
+  })
+
+  it('should log the hello world message', () => {
+    const result = results[1]
+    expect(JSON.parse(result)).toStrictEqual({
+      level: 'info',
+      v: 1,
       context: {
-        vrm,
-        usefulField,
+        request_id: context.awsRequestId,
+        account_id: 'account-id',
+        function: {
+          name: context.functionName,
+          version: context.functionVersion,
+          service: 'Unknown',
+        },
+        event: {
+          source: 'aws.events',
+          type: 'Scheduled Event',
+          id: event.id,
+        },
       },
+      msg: 'Hello world',
     })
   })
 
-  // ACT
-  log.info('Hello world')
-  log.warn('Warn message')
-
-  // ASSERT
-  expect(results.length).toBe(2)
-
-  expect(results[0]).toStrictEqual({
-    message: 'Hello world',
-    context: {
-      vrm,
-      usefulField,
-    },
+  it('should record a telemetry line', () => {
+    const result = results[0]
+    expect(result.startsWith('CZEV ')).toBe(true)
   })
 
-  expect(results[1]).toStrictEqual({
-    message: 'Warn message',
-    context: {
-      vrm,
-      usefulField,
-    },
-  })
-})
+  it('should contain the contextual data', () => {
+    const result = results[0]
+    const data = JSON.parse(result.substr(5))
 
-it('When specifying a service name', async () => {
-  const stream = sink()
-  const service = 'my service is the best service'
-
-  const log = logger.fromContext(event, context, { stream, service })
-  log.info('Hello world')
-
-  const result = await once(stream, 'data')
-
-  expect(result).toStrictEqual({
-    level: 'info',
-    v: 1,
-    context: {
-      request_id: context.awsRequestId,
-      account_id: 'account-id',
-      function: {
-        name: context.functionName,
-        version: context.functionVersion,
-        service,
-      },
+    expect(data).toStrictEqual({
+      ts: now,
       event: {
-        source: 'aws.events',
-        type: 'Scheduled Event',
         id: event.id,
+        type: event['detail-type'],
       },
-    },
-    msg: 'Hello world',
-  })
-})
-
-it('When specifying the service as an env var', async () => {
-  const stream = sink()
-  const service = 'my service is the best service'
-  process.env.CAZOO_LOGGER_SERVICE = service
-
-  const log = logger.fromContext(event, context, { stream, service })
-  log.info('Hello world')
-
-  const result = await once(stream, 'data')
-
-  expect(result).toMatchObject({
-    context: {
-      function: {
-        service,
+      node: {
+        name: context.functionName,
+        svc: 'Unknown',
       },
-    },
-    msg: 'Hello world',
+      dir: 'IN',
+      req: 'request-id',
+    })
   })
 })
