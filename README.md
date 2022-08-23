@@ -1,4 +1,5 @@
-> **Warning** \
+> **Warning**
+> # Deprecation notice 
 > This library is deprecated. \
 > Support has been discontinued and usage in any project is not adviced. \
 > **Please use the updated logger instead.** \
