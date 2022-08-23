@@ -1,3 +1,9 @@
+> **Warning** \
+> This library is deprecated. \
+> Support has been discontinued and usage in any project is not adviced. \
+> **Please use the updated logger instead.** \
+> It can be found at [Cazoo-uk/cazoo-logger](https://github.com/Cazoo-uk/cazoo-logger)
+---
 # Cazoo Logger
 
 A highly opinionated structured logger for NodeJS Lambda functions.
