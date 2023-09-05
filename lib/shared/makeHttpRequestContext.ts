@@ -1,7 +1,7 @@
-import uuid from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 
 export function makeHttpRequestContext(url: string, method: string, body: any) {
-  const requestId = uuid()
+  const requestId = uuidv4()
   const context = {
     data: {
       http: {

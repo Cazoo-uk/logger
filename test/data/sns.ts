@@ -1,3 +1,4 @@
+import { SNSEvent } from 'aws-lambda'
 import { baseContext } from './baseContext'
 
 export const context = {
@@ -30,8 +31,8 @@ export const event = {
         SignatureVersion: '1',
         Signature:
           'LznNcdnNG2b2yT2Iu8OkPY5FYbBzkqfJCl3LJt8zrcweUknDjd6mpwdMXEIb5eAVI72q2buBQByEAyFmDaPN3l5vG/vcbt4oujzmYmVziH6eBG1vlVAzagP366Zd7IEML5et/RyRhJS7iUV/H4jbEm88RuH7xZ49FlS1UMFMEpw8LAxgdGWSOcQFaXDUbeG7K2RNmG2e9zUicpHjfDM5ylUpykCWa4k43QewH3LYt4rTjXW5OTEvYljs5yFaX3Wln94jLG3A6lELITnt3ayJ+DnbJYe2Br36+IEN8yCaKTojmACrMSwG0B0V2nWOY+ZkpR6tcwQj0fBch26H0PiSqA==',
-        SigningCertUrl: 'LOLOLOLOLOLLOOLOOLOLLOLLOLLOLOL',
-        UnsubscribeUrl:
+        SigningCertURL: 'LOLOLOLOLOLLOOLOOLOLLOLLOLLOLOL',
+        UnsubscribeURL:
           'https://sns.eu-west-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-1:050965784921:verified-features-s3-bucket-topic:8c00703d-2514-4bc1-8178-8423e25f57ed',
         MessageAttributes: {},
       },
@@ -51,7 +52,7 @@ export const nonS3Event = {
         Timestamp: '2019-01-02T12:45:07.000Z',
         Signature:
           'tcc6faL2yUC6dgZdmrwh1Y4cGa/ebXEkAi6RibDsvpi+tE/1+82j...65r==',
-        SigningCertUrl:
+        SigningCertURL:
           'https://sns.us-east-2.amazonaws.com/SimpleNotificationService-ac565b8b1a6c5d002d285f9598aa1d9b.pem',
         MessageId: '95df01b4-ee98-5cb9-9903-4c221d41eb5e',
         Message: 'Hello from SNS!',
@@ -66,7 +67,7 @@ export const nonS3Event = {
           },
         },
         Type: 'Notification',
-        UnsubscribeUrl:
+        UnsubscribeURL:
           'https://sns.us-east-2.amazonaws.com/?Action=Unsubscribe&amp;SubscriptionArn=arn:aws:sns:us-east-2:123456789012:test-lambda:21be56ed-a058-49f5-8c98-aedd2564c486',
         TopicArn: 'arn:aws:sns:us-east-2:123456789012:sns-lambda',
         Subject: 'TestInvoke',

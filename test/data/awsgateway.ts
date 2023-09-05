@@ -31,6 +31,7 @@ const baseIdentity = {
   userAgent: null,
   userArn: null,
   principalOrgId: 'my-org',
+  clientCert: null,
 }
 
 const baseRequestContext: APIGatewayEventRequestContext = {
