@@ -15,9 +15,9 @@ export function sink() {
 export function once(emitter, name) {
   return new Promise((resolve, reject) => {
     if (name !== 'error') emitter.once('error', reject)
-    emitter.once(name, (...args) => {
+    emitter.once(name, (...args: any[]) => {
       emitter.removeListener('error', reject)
-      resolve(...args)
+      resolve(args)
     })
   })
 }

@@ -163,7 +163,7 @@ export interface LoggerOptions {
   stream?: Pino.DestinationStream
   level?: string
   service?: string
-  redact?: string[] | Pino.redactOptions
+  redact?: string[]
   timeoutAfterMs?: number
 }
 

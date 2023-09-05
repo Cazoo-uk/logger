@@ -38,9 +38,7 @@ export function makeContext(
   extra: any
 ): LoggerContext {
   return {
-    // eslint-disable-next-line @typescript-eslint/camelcase
     request_id: ctx.awsRequestId,
-    // eslint-disable-next-line @typescript-eslint/camelcase
     account_id: parseAccountId(ctx.invokedFunctionArn),
     function: {
       name: ctx.functionName,

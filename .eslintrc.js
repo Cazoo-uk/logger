@@ -3,8 +3,7 @@ module.exports = {
     plugins: ['@typescript-eslint'],
     extends: [
         'plugin:@typescript-eslint/recommended',
-        'plugin:prettier/recommended',
-        'prettier/@typescript-eslint',
+        'prettier',
     ],
     parserOptions: {
         project: './tsconfig.json',
@@ -14,4 +13,5 @@ module.exports = {
     rules: {
         // Special ESLint rules or overrides go here.
     },
+    ignorePatterns: ['test/'],
 }
