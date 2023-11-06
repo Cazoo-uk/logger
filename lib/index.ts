@@ -3,7 +3,7 @@ import {
   CloudFrontRequestEvent,
   Context,
   DynamoDBStreamEvent,
-  ScheduledEvent,
+  EventBridgeEvent,
   SNSEvent,
   SQSRecord,
 } from 'aws-lambda'
@@ -168,7 +168,7 @@ export interface LoggerOptions {
 }
 
 function forDomainEvent(
-  event: ScheduledEvent,
+  event: EventBridgeEvent<string, any>,
   context: Context,
   options?: LoggerOptions
 ): Logger | null {
@@ -279,7 +279,11 @@ export function fromContext(
 
   try {
     return (
-      forDomainEvent(event as ScheduledEvent, context, options) ||
+      forDomainEvent(
+        event as EventBridgeEvent<string, any>,
+        context,
+        options
+      ) ||
       forAPIGatewayEvent(event as APIGatewayProxyEvent, context, options) ||
       forSNS(event as SNSEvent, context, options) ||
       forSQSRecord(event as SQSRecord, context, options) ||

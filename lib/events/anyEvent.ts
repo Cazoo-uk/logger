@@ -2,7 +2,7 @@ import {
   APIGatewayProxyEvent,
   CloudFrontRequestEvent,
   DynamoDBStreamEvent,
-  ScheduledEvent,
+  EventBridgeEvent,
   SNSEvent,
   SQSRecord,
 } from 'aws-lambda'
@@ -10,6 +10,6 @@ export type AnyEvent =
   | APIGatewayProxyEvent
   | CloudFrontRequestEvent
   | DynamoDBStreamEvent
-  | ScheduledEvent
+  | EventBridgeEvent<string, any>
   | SNSEvent
   | SQSRecord
