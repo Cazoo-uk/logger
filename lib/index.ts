@@ -12,6 +12,7 @@ import Pino from 'pino'
 import { parentPinoLogger } from './pino/parentPinoLogger'
 import { AnyEvent } from './events/anyEvent'
 import { recordError, recordErrorAsWarning } from './shared/errors'
+import { EventRecorder, eventRecorder } from './recordEvents'
 import { combineWithBoundContext } from './pino/combineWithBoundContext'
 import { makeHttpResponseContext } from './shared/makeHttpResponseContext'
 import { getRequestFromBindings } from './pino/getRequestFromBindings'
@@ -97,10 +98,14 @@ function makeLogger(
   options?: LoggerOptions
 ): Logger {
   let instance: Pino.Logger
+  let stream: any
   if (parent === undefined) {
-    instance = parentPinoLogger(data, options)
+    const p = parentPinoLogger(data, options)
+    stream = p.stream
+    instance = p.instance
   } else {
     instance = parent.child(data)
+    stream = parent.stream
   }
 
   Object.assign(instance, {
@@ -112,6 +117,8 @@ function makeLogger(
     recordErrorAsWarning,
     recordError,
     done,
+    stream,
+    recordEvent: eventRecorder(stream),
     /* eslint-enable @typescript-eslint/no-use-before-define */
   })
 
@@ -173,13 +180,16 @@ function forDomainEvent(
   options?: LoggerOptions
 ): Logger | null {
   if (isDomainEvent(event)) {
-    return makeLogger(
+    const loggerContext = makeDomainEventContext(context, options, event)
+    const logger = makeLogger(
       {
-        context: makeDomainEventContext(context, options, event),
+        context: loggerContext,
       },
       undefined,
       options
     )
+    logger.recordEvent(loggerContext, event, 'IN')
+    return logger
   }
 }
 
@@ -299,4 +309,8 @@ export interface ErrorRecorder {
   recordErrorAsWarning(e: any, msg?: string): void
 }
 
-export type Logger = Pino.Logger & Contexts & ErrorRecorder & TimeoutLogger
+export type Logger = Pino.Logger &
+  Contexts &
+  ErrorRecorder &
+  TimeoutLogger &
+  EventRecorder
