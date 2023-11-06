@@ -170,15 +170,15 @@ We need to manually cancel the timeout by calling `logger.done()` before returni
 It accepts an option object that will be passed to the instantiated logger.
 
 ```
-import { CloudwatchEvent, Context} from 'aws-lambda'
-import { withLambdaLogger } from 'cazoo-logger'
+import { CloudwatchEvent } from 'aws-lambda'
+import { withLambdaLogger, ContextWithLogger } from 'cazoo-logger'
 
 const loggerOptions = {
    // ...
 }
 export const lambdaHanlder = withLambdaLogger(handle, loggerOptions)
 
-function handle(event: CloudwatchEvent, context: Context) {
+function handle(event: CloudwatchEvent, context: ContextWithLogger) {
   const log = context.logger
   log.info("handler invoked")
 }
